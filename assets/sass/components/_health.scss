@@ -1,0 +1,21 @@
+.healthbar {
+	cursor: pointer;
+	position: relative;
+	border: 1px solid #444;
+	width: 100px;
+	height: 15px;
+	padding: 2px;
+	margin-left: 23px;
+}
+.healthbar{
+	.health {
+		height: 100%;
+		width: 100%;
+		background-color: red;
+	}
+	.healthtext {
+		position: absolute;
+		top: 0px;
+		left: -20px;
+	}
+}

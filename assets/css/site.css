@@ -63,82 +63,31 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 3, ../sass/site.scss */
-#mainbox {
-  width: 800px;
-  height: 400px;
-  border: 1px solid red;
-}
-
-/* line 8, ../sass/site.scss */
-#div {
-  width: 800px;
-  height: 400px;
-  border: 1px solid black;
-}
-
-/* line 13, ../sass/site.scss */
-#data {
-  position: absolute;
-  left: 810px;
-  top: 20px;
-  width: 300px;
-  height: 400px;
-}
-
-/* line 20, ../sass/site.scss */
-#graphholder {
+/* line 1, ../sass/components/_health.scss */
+.healthbar {
+  cursor: pointer;
   position: relative;
+  border: 1px solid #444;
+  width: 100px;
+  height: 15px;
+  padding: 2px;
+  margin-left: 23px;
 }
 
-/* line 23, ../sass/site.scss */
-#graphholder .scale {
+/* line 11, ../sass/components/_health.scss */
+.healthbar .health {
+  height: 100%;
+  width: 100%;
+  background-color: red;
+}
+/* line 16, ../sass/components/_health.scss */
+.healthbar .healthtext {
   position: absolute;
-  left: 405px;
-  font-size: 9px;
-}
-
-/* line 28, ../sass/site.scss */
-#s0 {
-  top: 200px;
-}
-
-/* line 29, ../sass/site.scss */
-#s25 {
-  top: 150px;
-}
-
-/* line 30, ../sass/site.scss */
-#s50 {
-  top: 100px;
-}
-
-/* line 31, ../sass/site.scss */
-#s75 {
-  top: 50px;
-}
-
-/* line 32, ../sass/site.scss */
-#s100 {
   top: 0px;
+  left: -20px;
 }
 
-/* line 33, ../sass/site.scss */
-#graphcanvas {
-  border: 1px solid black;
-}
-
-/* line 36, ../sass/site.scss */
-#topscoreholder {
-  width: 300px;
-  height: 400px;
-  position: absolute;
-  top: 420px;
-  left: 445px;
-  font-size: 11px;
-}
-
-/* line 46, ../sass/site.scss */
+/* line 3, ../sass/components/_maps.scss */
 #minimapholder {
   position: relative;
   border: 1px solid black;
@@ -147,7 +96,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   overflow: hidden;
 }
 
-/* line 53, ../sass/site.scss */
+/* line 10, ../sass/components/_maps.scss */
 .minimapmarker {
   position: absolute;
   left: 0;
@@ -160,7 +109,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   padding-left: 2px;
 }
 
-/* line 64, ../sass/site.scss */
+/* line 21, ../sass/components/_maps.scss */
 .silverdot {
   position: absolute;
   left: 0;
@@ -170,7 +119,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   z-index: 4;
 }
 
-/* line 72, ../sass/site.scss */
+/* line 29, ../sass/components/_maps.scss */
 #minimapfog {
   width: 798px;
   height: 198px;
@@ -181,7 +130,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   background-color: white;
 }
 
-/* line 81, ../sass/site.scss */
+/* line 38, ../sass/components/_maps.scss */
 #minimapcamera {
   position: absolute;
   top: 0px;
@@ -192,26 +141,77 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   border: 1px dashed #888;
 }
 
-/* line 90, ../sass/site.scss */
-.healthbar {
-  cursor: pointer;
+/* line 1, ../sass/components/_graph.scss */
+#graphholder {
   position: relative;
-  border: 1px solid #444;
-  width: 100px;
-  height: 15px;
-  padding: 2px;
-  margin-left: 23px;
 }
 
-/* line 100, ../sass/site.scss */
-.healthbar .health {
-  height: 100%;
-  width: 100%;
-  background-color: red;
-}
-/* line 105, ../sass/site.scss */
-.healthbar .healthtext {
+/* line 4, ../sass/components/_graph.scss */
+#graphholder .scale {
   position: absolute;
+  left: 405px;
+  font-size: 9px;
+}
+
+/* line 9, ../sass/components/_graph.scss */
+#s0 {
+  top: 200px;
+}
+
+/* line 10, ../sass/components/_graph.scss */
+#s25 {
+  top: 150px;
+}
+
+/* line 11, ../sass/components/_graph.scss */
+#s50 {
+  top: 100px;
+}
+
+/* line 12, ../sass/components/_graph.scss */
+#s75 {
+  top: 50px;
+}
+
+/* line 13, ../sass/components/_graph.scss */
+#s100 {
   top: 0px;
-  left: -20px;
+}
+
+/* line 14, ../sass/components/_graph.scss */
+#graphcanvas {
+  border: 1px solid black;
+}
+
+/* line 17, ../sass/components/_graph.scss */
+#topscoreholder {
+  width: 300px;
+  height: 400px;
+  position: absolute;
+  top: 420px;
+  left: 445px;
+  font-size: 11px;
+}
+
+/* line 8, ../sass/site.scss */
+#mainbox {
+  width: 800px;
+  height: 400px;
+  border: 1px solid red;
+}
+
+/* line 13, ../sass/site.scss */
+#div {
+  width: 800px;
+  height: 400px;
+  border: 1px solid black;
+}
+
+/* line 18, ../sass/site.scss */
+#data {
+  position: absolute;
+  left: 810px;
+  top: 20px;
+  width: 300px;
+  height: 400px;
 }
