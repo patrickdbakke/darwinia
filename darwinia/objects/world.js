@@ -1,4 +1,4 @@
-var cw_carScores=new Array();
+var creatureScores=new Array();
 var environment=function(){
 	var env={
 		timeStep: 1.0 / 60.0,
@@ -62,13 +62,13 @@ var environment=function(){
 		gravity:null,
 		world:null,
 		
-		cw_carGeneration:[],
+		creatureGeneration:[],
 		cw_topScores:[],
 		cw_graphTop:[],
 		cw_graphElite:[],
 		cw_graphAverage:[],
 		cw_floorTiles:[],
-		cw_carArray:[],
+		creatureArray:[],
 		
 		init:function(){
 			var canvasID="mainbox";
@@ -182,7 +182,7 @@ var environment=function(){
 			for(var k = 0; k < this.generationSize; k++) {
 				var car_def = this.cw_createRandomCar();
 					car_def.index = k;
-				this.cw_carGeneration.push(car_def);
+				this.creatureGeneration.push(car_def);
 			}
 			this.gen_counter = 0;
 			this.cw_deadCars = 0;
@@ -194,21 +194,21 @@ var environment=function(){
 			document.getElementById("population").innerHTML = "cars alive: "+this.generationSize;
 		},
 		cw_materializeGeneration: function() {
-			this.cw_carArray = new Array();
+			this.creatureArray = new Array();
 			for(var k = 0; k < this.generationSize; k++) {
-				this.cw_carArray.push(new cw_Car(this.cw_carGeneration[k],this.world));
+				this.creatureArray.push(new creature(this.creatureGeneration[k],this.world));
 			}
 		},
 		cw_nextGeneration: function() {
 			var newGeneration = new Array();
 			var newborn;
 			this.cw_getChampions();
-			this.cw_topScores.push({i:this.gen_counter,v:cw_carScores[0].v,x:cw_carScores[0].x,y:cw_carScores[0].y,y2:cw_carScores[0].y2});
+			this.cw_topScores.push({i:this.gen_counter,v:creatureScores[0].v,x:creatureScores[0].x,y:creatureScores[0].y,y2:creatureScores[0].y2});
 			this.plot_graphs();
 			for(var k = 0; k < this.gen_champions; k++) {
-				cw_carScores[k].car_def.is_elite = true;
-				cw_carScores[k].car_def.index = k;
-				newGeneration.push(cw_carScores[k].car_def);
+				creatureScores[k].car_def.is_elite = true;
+				creatureScores[k].car_def.index = k;
+				newGeneration.push(creatureScores[k].car_def);
 			}
 			for(k = this.gen_champions; k < this.generationSize; k++) {
 				var parent1 = this.cw_getParents();
@@ -216,14 +216,14 @@ var environment=function(){
 				while(parent2 == parent1) {
 					parent2 = this.cw_getParents();
 				}
-				newborn = this.cw_makeChild(this.cw_carGeneration[parent1],this.cw_carGeneration[parent2]);
+				newborn = this.cw_makeChild(this.creatureGeneration[parent1],this.creatureGeneration[parent2]);
 				newborn = this.cw_mutate(newborn);
 				newborn.is_elite = false;
 				newborn.index = k;
 				newGeneration.push(newborn);
 			}
-			cw_carScores = new Array();
-			this.cw_carGeneration = newGeneration;
+			creatureScores = new Array();
+			this.creatureGeneration = newGeneration;
 			this.gen_counter++;
 			this.cw_materializeGeneration();
 			this.cw_deadCars = 0;
@@ -236,9 +236,9 @@ var environment=function(){
 		},
 		cw_getChampions: function() {
 			var ret = new Array();
-			cw_carScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
+			creatureScores.sort(function(a,b) {if(a.v > b.v) {return -1} else {return 1}});
 			for(var k = 0; k < this.generationSize; k++) {
-				ret.push(cw_carScores[k].i);
+				ret.push(creatureScores[k].i);
 			}
 			return ret;
 		},
@@ -373,7 +373,7 @@ var environment=function(){
 		},
 		cw_setCameraPosition: function() {
 			if(this.camera.target >= 0) {
-				var cameraTargetPosition = this.cw_carArray[this.camera.target].getPosition();
+				var cameraTargetPosition = this.creatureArray[this.camera.target].getPosition();
 			} else {
 				var cameraTargetPosition = this.leaderPosition;
 			}
@@ -409,8 +409,8 @@ var environment=function(){
 		},
 		cw_drawCars: function() {
 			var ctx=this.ctx;
-			for(var k = (this.cw_carArray.length-1); k >= 0; k--) {
-				this.myCar = this.cw_carArray[k];
+			for(var k = (this.creatureArray.length-1); k >= 0; k--) {
+				this.myCar = this.creatureArray[k];
 				if(!this.myCar.alive) {
 					continue;
 				}
@@ -524,9 +524,9 @@ var environment=function(){
 		/* ========================================================================= */
 		/* ==== Graphs ============================================================= */
 		cw_storeGraphScores: function() {
-			this.cw_graphAverage.push(this.cw_average(cw_carScores));
-			this.cw_graphElite.push(this.cw_eliteaverage(cw_carScores));
-			this.cw_graphTop.push(cw_carScores[0].v);
+			this.cw_graphAverage.push(this.cw_average(creatureScores));
+			this.cw_graphElite.push(this.cw_eliteaverage(creatureScores));
+			this.cw_graphTop.push(creatureScores[0].v);
 		},
 		cw_plotTop: function() {
 			var graphsize = this.cw_graphTop.length;
@@ -612,15 +612,15 @@ var environment=function(){
 		simulationStep: function() {
 			this.world.Step(1/this.box2dfps, 20, 20);
 			for(var k = 0; k < this.generationSize; k++) {
-				if(!this.cw_carArray[k].alive) {
+				if(!this.creatureArray[k].alive) {
 					continue;
 				}
-				this.cw_carArray[k].frames++;
-				var position = this.cw_carArray[k].getPosition();
-				this.cw_carArray[k].minimapmarker.left = Math.round((position.x+5) * this.minimapscale) + "px";
-				this.cw_carArray[k].healthBar.width = Math.round((this.cw_carArray[k].health/this.cw_carArray[k].max_car_health)*100) + "%";
-				if(this.cw_carArray[k].checkDeath()) {
-					this.cw_carArray[k].kill();
+				this.creatureArray[k].frames++;
+				var position = this.creatureArray[k].getPosition();
+				this.creatureArray[k].minimapmarker.left = Math.round((position.x+5) * this.minimapscale) + "px";
+				this.creatureArray[k].healthBar.width = Math.round((this.creatureArray[k].health/this.creatureArray[k].max_car_health)*100) + "%";
+				if(this.creatureArray[k].checkDeath()) {
+					this.creatureArray[k].kill();
 					this.cw_deadCars++;
 					document.getElementById("population").innerHTML = "cars alive: " + (this.generationSize-this.cw_deadCars);
 					if(this.cw_deadCars >= this.generationSize) {
@@ -640,11 +640,11 @@ var environment=function(){
 		},
 		cw_findLeader: function() {
 			var lead = 0;
-			for(var k = 0; k < this.cw_carArray.length; k++) {
-				if(!this.cw_carArray[k].alive) {
+			for(var k = 0; k < this.creatureArray.length; k++) {
+				if(!this.creatureArray[k].alive) {
 					continue;
 				}
-				position = this.cw_carArray[k].getPosition();
+				position = this.creatureArray[k].getPosition();
 				if(position.x > lead) {
 					this.leaderPosition = position;
 					this.leaderPosition.leader = k;
@@ -701,7 +701,7 @@ var environment=function(){
 			var position = myCar.maxPosition;
 			var score = position + avgspeed;
 			document.getElementById("cars").innerHTML += Math.round(position*100)/100 + "m + " +" "+Math.round(avgspeed*100)/100+" m/s = "+ Math.round(score*100)/100 +"pts<br />";
-			cw_carScores.push({ i:current_car_index, v:score, s: avgspeed, x:position, y:myCar.maxPositiony, y2:myCar.minPositiony });
+			creatureScores.push({ i:current_car_index, v:score, s: avgspeed, x:position, y:myCar.maxPositiony, y2:myCar.minPositiony });
 			current_car_index++;
 			cw_killCar();
 			if(current_car_index >= generationSize) {
@@ -716,9 +716,9 @@ var environment=function(){
 			document.getElementById("cars").innerHTML = "";
 			document.getElementById("topscores").innerHTML = "";
 			this.cw_clearGraphics();
-			this.cw_carArray = new Array();
-			this.cw_carGeneration = new Array();
-			this.cw_carScores = new Array();
+			this.creatureArray = new Array();
+			this.creatureGeneration = new Array();
+			this.creatureScores = new Array();
 			this.cw_topScores = new Array();
 			this.cw_graphTop = new Array();
 			this.cw_graphElite = new Array();
@@ -754,17 +754,13 @@ var environment=function(){
 	}
 	return env;
 };
-
-
-/* ========================================================================= */
-/* === Car ================================================================= */
-var cw_Car = function() {
+var creature = function() {
 	this.__constructor.apply(this, arguments);
 }
-cw_Car.prototype.chassis = null;
-cw_Car.prototype.wheel1 = null;
-cw_Car.prototype.wheel2 = null;
-cw_Car.prototype.__constructor = function(car_def,world) {
+creature.prototype.chassis = null;
+creature.prototype.wheel1 = null;
+creature.prototype.wheel2 = null;
+creature.prototype.__constructor = function(car_def,world) {
 	this.velocityIndex = 0;
 	this.health = 100;
 	this.maxPosition = 0;
@@ -824,28 +820,28 @@ cw_Car.prototype.__constructor = function(car_def,world) {
 
 	var joint = this.world.CreateJoint(joint_def);
 }
-cw_Car.prototype.getPosition = function() {
+creature.prototype.getPosition = function() {
 	return this.chassis.GetPosition();
 }
 
-cw_Car.prototype.draw = function() {
+creature.prototype.draw = function() {
 	drawObject(this.chassis);
 	drawObject(this.wheel1);
 	drawObject(this.wheel2);
 }
 
-cw_Car.prototype.kill = function() {
+creature.prototype.kill = function() {
 	var avgspeed = (this.maxPosition / this.frames) * 60;
 	var position = this.maxPosition;
 	var score = position + avgspeed;
-	cw_carScores.push({ car_def:this.car_def, v:score, s: avgspeed, x:position, y:this.maxPositiony, y2:this.minPositiony });
+	creatureScores.push({ car_def:this.car_def, v:score, s: avgspeed, x:position, y:this.maxPositiony, y2:this.minPositiony });
 	this.world.DestroyBody(this.chassis);
 	this.world.DestroyBody(this.wheel1);
 	this.world.DestroyBody(this.wheel2);
 	this.alive = false;
 }
 
-cw_Car.prototype.checkDeath = function() {
+creature.prototype.checkDeath = function() {
 	// check health
 	var position = this.getPosition();
 	if(position.y > this.maxPositiony) {
@@ -916,6 +912,3 @@ function cw_createChassisPart(body, vertex1, vertex2) {
 		fix_def.shape.SetAsArray(vertex_list,3);
 	body.CreateFixture(fix_def);
 }
-
-/* === END Car ============================================================= */
-/* ========================================================================= */
