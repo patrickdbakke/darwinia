@@ -1,46 +1,48 @@
-#minimap {
-}
+@import "shared/colors";
 #minimapholder {
-	position: relative;
-	border: 1px solid black;
-	width: 800px;
-	height: 200px;
-	overflow: hidden;
-}
-.minimapmarker {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 1px;
-	height: 200px;
-	z-index: 5;
-	border-left: 1px solid #444;
-	font-size: 9px;
-	padding-left: 2px;
-}
-.silverdot {
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 1px;
-	height: 200px;
-	z-index: 4;
-}
-#minimapfog {
-	width: 798px;
-	height: 198px;
-	position: absolute;
-	top: 1px;
-	right: 1px;
-	z-index: 2;
-	background-color: white;
-}
-#minimapcamera {
-	position: absolute;
-	top: 0px;
-	left: 1px;
-	height: 199px;
-	width: 50px;
-	z-index: 3;
-	border: 1px dashed #888;
+	display:none;
+	#minimapholder {
+		position: relative;
+		border: 1px solid black;
+		width: 800px;
+		height: 200px;
+		overflow: hidden;
+	}
+	.minimapmarker {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 1px;
+		height: 200px;
+		z-index: 5;
+		border-left: 1px solid #444;
+		font-size: 9px;
+		padding-left: 2px;
+	}
+	.silverdot {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 1px;
+		height: 200px;
+		z-index: 4;
+	}
+	#minimapfog {
+		width: 798px;
+		height: 198px;
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		z-index: 2;
+		background-color: white;
+	}
+	#minimapcamera {
+		position: absolute;
+		top: 0px;
+		left: 1px;
+		height: 199px;
+		width: 50px;
+		z-index: 3;
+		border: 1px dashed #888;
+	}
 }

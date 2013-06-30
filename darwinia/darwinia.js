@@ -2,10 +2,13 @@ var Darwinia = new Backbone.Marionette.Application();
 Darwinia.addRegions({
 	header: "#header",
 	game: "#game",
-	left: "#left",
+	topleft: "#topleft",
+	topright: "#topright",
+	bottomleft: "#bottomleft",
+	bottomright: "#bottomright",
 	right: "#right",
 	footer: "#footer",
-	modal: "#modal"
+	modal: "#modal",
 });
 Darwinia.router = Backbone.Router.extend({
 	routes: {
@@ -14,7 +17,10 @@ Darwinia.router = Backbone.Router.extend({
 });
 Darwinia.routes = new Darwinia.router();
 Darwinia.routes.on("route:default",function(actions){
-	console.debug("started");
+	Darwinia.topright.show(new graphView);
+	Darwinia.topleft.show(new topscoreView);
+	Darwinia.bottomright.show(new minimapView);
+	Darwinia.bottomleft.show(new dataView);
 	var env=new environment();
 	env.init();
 });

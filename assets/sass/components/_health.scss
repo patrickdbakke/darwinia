@@ -1,4 +1,6 @@
+@import "shared/colors";
 .healthbar {
+	display:none;
 	cursor: pointer;
 	position: relative;
 	border: 1px solid #444;
@@ -6,8 +8,6 @@
 	height: 15px;
 	padding: 2px;
 	margin-left: 23px;
-}
-.healthbar{
 	.health {
 		height: 100%;
 		width: 100%;

@@ -3,7 +3,7 @@
 		echo '<script src="/darwinia/views.js"></script>';
 	}else{
 		header("Content-type: application/javascript");
-		foreach (glob("../../../views/*.js") as $filename)
+		foreach (glob("views/*.js") as $filename)
 		{
 			include $filename;
 		}
