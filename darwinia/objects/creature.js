@@ -94,25 +94,25 @@ var creature = function(world,id) {
 					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,0);
 					break;
 				case 1:
-					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis);
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,val2*this.chassisMaxAxis + this.chassisMinAxis);
 					break;
 				case 2:
 					return new b2Vec2(0,val2*this.chassisMaxAxis + this.chassisMinAxis);
 					break;
 				case 3:
-					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis);
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,val2*this.chassisMaxAxis + this.chassisMinAxis);
 					break;
 				case 4:
 					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,0);
 					break;
 				case 5:
-					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis);
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
 					break;
 				case 6:
 					return new b2Vec2(0,-val2*this.chassisMaxAxis - this.chassisMinAxis);
 					break;
 				case 7:
-					return new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis);
+					return new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
 					break;
 			}
 		},
