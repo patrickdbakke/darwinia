@@ -73,14 +73,12 @@ var creature = function(world,id) {
 			def.wheel_density2 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
 
 			def.vertex_list = new Array();
-			def.vertex_list.push(this.indiceToVertex(0,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(1,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(2,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(3,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(4,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(5,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(6,Math.random(),Math.random()));
-			def.vertex_list.push(this.indiceToVertex(7,Math.random(),Math.random()));
+			def.vertices=new Array();
+			for(var i=0;i<8;i++){
+				def.vertices.push(Math.random());
+				def.vertices.push(Math.random());
+				def.vertex_list.push(this.indiceToVertex(0,def.vertices[2*i],def.vertices[2*i+1]));
+			}
 
 			def.wheel_vertex1 = Math.floor(Math.random()*8)%8;
 			v2 = def.wheel_vertex1;
