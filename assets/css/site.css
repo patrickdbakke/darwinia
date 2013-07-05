@@ -189,20 +189,41 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 /* line 1, ../sass/components/_data.scss */
 #data {
   position: absolute;
-  left: 810px;
-  top: 20px;
+  top: 5px;
+  right: 5px;
   width: 300px;
-  height: 400px;
-  display: none;
+  height: 209px;
+  text-align: right;
 }
 
-/* line 9, ../sass/site.scss */
+/* line 1, ../sass/components/_topscore.scss */
+#topscoreholder {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 28px;
+}
+/* line 6, ../sass/components/_topscore.scss */
+#topscoreholder .topscoretitle {
+  position: absolute;
+  left: 0;
+  z-index: 2;
+  background: white;
+  padding: 5px;
+}
+/* line 13, ../sass/components/_topscore.scss */
+#topscoreholder .topscore {
+  display: inline-block;
+  padding: 5px;
+}
+
+/* line 10, ../sass/site.scss */
 #mainbox {
   width: 100%;
   height: 100%;
 }
 
-/* line 13, ../sass/site.scss */
+/* line 14, ../sass/site.scss */
 #div {
   width: 800px;
   height: 400px;

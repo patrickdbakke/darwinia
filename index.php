@@ -26,6 +26,8 @@
 	<?php include "darwinia/views.php"; ?>		
 	<?php include "darwinia/models.php"; ?>		
 	<script src="/darwinia/objects/creature.js"></script>
+	<script src="/darwinia/objects/fruit.js"></script>
+	<script src="/darwinia/objects/floor.js"></script>
 	<script src="/darwinia/objects/world.js"></script>
 	<script src="/darwinia/darwinia.js"></script>
 </html>
