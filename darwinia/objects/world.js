@@ -102,11 +102,6 @@ var environment=function(){
 			$("#distancemeter").html("distance: "+distance+" meters<br />height: "+height+" meters");
 		},
 		generationZero: function() {
-			// for(var k = 0; k < this.generationSize; k++) {
-				// var car_def = this.createRandomCar();
-					// car_def.index = k;
-				// this.creatureGeneration.push(car_def);
-			// }
 			this.gen_counter = 0;
 			this.deadCars = 0;
 			this.leaderPosition = new Object();
@@ -181,32 +176,6 @@ var environment=function(){
 			}
 			return parentIndex;
 		},
-		createRandomCar: function() {
-			var v2;
-			var car_def = new Object();
-			car_def.wheel_radius1 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
-			car_def.wheel_radius2 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
-			car_def.wheel_density1 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
-			car_def.wheel_density2 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
-
-			car_def.vertex_list = new Array();
-			car_def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,0));
-			car_def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			car_def.vertex_list.push(new b2Vec2(0,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			car_def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			car_def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,0));
-			car_def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
-			car_def.vertex_list.push(new b2Vec2(0,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
-			car_def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
-
-			car_def.wheel_vertex1 = Math.floor(Math.random()*8)%8;
-			v2 = car_def.wheel_vertex1;
-			while(v2 == car_def.wheel_vertex1) {
-				v2 = Math.floor(Math.random()*8)%8
-			}
-			car_def.wheel_vertex2 = v2;
-			return car_def;
-		},
 		makeChild: function(car_def1, car_def2) {
 			var newCarDef = new Object();
 			this.swapPoint1 = Math.round(Math.random()*(this.nAttributes-1));
@@ -216,9 +185,11 @@ var environment=function(){
 			}
 			var parents = [car_def1, car_def2];
 			var curparent = 0;
-
+			
+			newCarDef.data=[];
 			curparent = this.chooseParent(curparent,0);
 			newCarDef.wheel_radius1 = parents[curparent].wheel_radius1;
+			// newCarDef.data[0] = parents[curparent].data[0];
 			curparent = this.chooseParent(curparent,1);
 			newCarDef.wheel_radius2 = parents[curparent].wheel_radius2;
 

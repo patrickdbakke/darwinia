@@ -73,14 +73,14 @@ var creature = function(world,id) {
 			def.wheel_density2 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
 
 			def.vertex_list = new Array();
-			def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,0));
-			def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			def.vertex_list.push(new b2Vec2(0,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
-			def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,0));
-			def.vertex_list.push(new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
-			def.vertex_list.push(new b2Vec2(0,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
-			def.vertex_list.push(new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
+			def.vertex_list.push(this.indiceToVertex(0,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(1,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(2,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(3,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(4,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(5,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(6,Math.random(),Math.random()));
+			def.vertex_list.push(this.indiceToVertex(7,Math.random(),Math.random()));
 
 			def.wheel_vertex1 = Math.floor(Math.random()*8)%8;
 			v2 = def.wheel_vertex1;
@@ -89,6 +89,34 @@ var creature = function(world,id) {
 			}
 			def.wheel_vertex2 = v2;
 			return def;
+		},
+		indiceToVertex: function(i,val1,val2){
+			switch(i){
+				case 0:
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,0);
+					break;
+				case 1:
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 2:
+					return new b2Vec2(0,val2*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 3:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 4:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,0);
+					break;
+				case 5:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+				case 6:
+					return new b2Vec2(0,-val2*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+				case 7:
+					return new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+			}
 		},
 		mutate: function(car_def) {
 			if(Math.random() < this.gen_mutation)
@@ -107,21 +135,21 @@ var creature = function(world,id) {
 			
 			}
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(0,1,new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,0));
+				car_def.vertex_list.splice(0,1,this.indiceToVertex(0,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(1,1,new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
+				car_def.vertex_list.splice(1,1,this.indiceToVertex(1,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(2,1,new b2Vec2(0,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
+				car_def.vertex_list.splice(2,1,this.indiceToVertex(2,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(3,1,new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,Math.random()*this.chassisMaxAxis + this.chassisMinAxis));
+				car_def.vertex_list.splice(3,1,this.indiceToVertex(3,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(4,1,new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,0));
+				car_def.vertex_list.splice(4,1,this.indiceToVertex(4,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(5,1,new b2Vec2(-Math.random()*this.chassisMaxAxis - this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
+				car_def.vertex_list.splice(5,1,this.indiceToVertex(5,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(6,1,new b2Vec2(0,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
+				car_def.vertex_list.splice(6,1,this.indiceToVertex(6,Math.random(),Math.random()));
 			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(7,1,new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-Math.random()*this.chassisMaxAxis - this.chassisMinAxis));
+				car_def.vertex_list.splice(7,1,this.indiceToVertex(7,Math.random(),Math.random()));
 			return car_def;
 		},
 		getPosition: function() {
