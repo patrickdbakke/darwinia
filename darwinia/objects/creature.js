@@ -1,4 +1,4 @@
-var creature = function(world,id) {
+var creature = function(definition, world,id) {
 	var o={
 		id:id,
 		health: 100,
@@ -33,17 +33,27 @@ var creature = function(world,id) {
 		swapPoint2: 0,
 		
 		init:function(){
-			var def=this.createRandomCar();
-			this.def=def;
+			if(!definition){
+				this.def=this.createRandomCar();
+			}else{
+				this.def=definition;
+			}
+			var def=this.def;
 			this.gravity=new b2Vec2(0.0, -9.81);
-			this.parts.p1 = this.wheel(def.data[0]*this.wheelMaxRadius+this.wheelMinRadius, def.data[2]*this.wheelMaxDensity+this.wheelMinDensity,world);
-			this.parts.p2 = this.wheel(def.data[1]*this.wheelMaxRadius+this.wheelMinRadius, def.data[3]*this.wheelMaxDensity+this.wheelMinDensity,world);
-			this.parts.p3 = this.P3(def.vertex_list,world);
+			this.parts.p1 = this.wheel(def[0]*this.wheelMaxRadius+this.wheelMinRadius, def[2]*this.wheelMaxDensity+this.wheelMinDensity,world);
+			this.parts.p2 = this.wheel(def[1]*this.wheelMaxRadius+this.wheelMinRadius, def[3]*this.wheelMaxDensity+this.wheelMinDensity,world);
+			var vertices=[];
+			for(var i=0;i<8;i++){
+				vertices[2*i]=def[2*i+6];
+				vertices[2*i+1]=def[2*i+1+6];
+			}
+			this.parts.p3 = this.P3(vertices,world);
 
 			var carmass = this.parts.p3.GetMass() + this.parts.p1.GetMass() + this.parts.p2.GetMass();
-			var torque1 = carmass * -this.gravity.y / (def.data[0]*this.wheelMaxRadius+this.wheelMinRadius);
-			var torque2 = carmass * -this.gravity.y / (def.data[1]*this.wheelMaxRadius+this.wheelMinRadius);
-			var randvertex = this.parts.p3.vertex_list[Math.floor(def.data[4]*8)%8];
+			var torque1 = carmass * -this.gravity.y / (def[0]*this.wheelMaxRadius+this.wheelMinRadius);
+			var torque2 = carmass * -this.gravity.y / (def[1]*this.wheelMaxRadius+this.wheelMinRadius);
+			var i=Math.floor(def[4]*8)%8;
+			var randvertex = this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]);
 			var joint_def = new b2RevoluteJointDef();
 				joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
 				joint_def.localAnchorB.Set(0, 0);
@@ -53,7 +63,8 @@ var creature = function(world,id) {
 				joint_def.bodyA = this.parts.p3;
 				joint_def.bodyB = this.parts.p1;
 			var joint = this.world.CreateJoint(joint_def);
-			randvertex = this.parts.p3.vertex_list[Math.floor(def.data[5]*8)%8];
+			var i=Math.floor(def[5]*8)%8;
+			randvertex = this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]);
 				joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
 				joint_def.localAnchorB.Set(0, 0);
 				joint_def.maxMotorTorque = torque2;
@@ -88,47 +99,22 @@ var creature = function(world,id) {
 					return new b2Vec2(0,-val2*this.chassisMaxAxis - this.chassisMinAxis);
 					break;
 				case 7:
-					return new b2Vec2(Math.random()*this.chassisMaxAxis + this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
 					break;
 			}
 		},
 		createRandomCar: function() {
 			var def = new Object();
-				def.data=[];
-				def.data[0] = Math.random(); //wheel 1 radius
-				def.data[1] = Math.random(); //wheel 2 radius
-				def.data[2] = Math.random(); //wheel 1 density
-				def.data[3] = Math.random(); //wheel 2 density
-				def.data[4] = Math.random(); //wheel 1 vertex
-				def.data[5] = Math.random(); //wheel 2 vertex
-				def.vertex_list = new Array();
-				def.vertices = new Array();
-				for(var i=0;i<8;i++){
-					def.vertices.push(Math.random());
-					def.vertices.push(Math.random());
-					def.vertex_list.push(this.indiceToVertex(i,def.vertices[2*i],def.vertices[2*i+1]));
-				}
+				def=[];
+			for(var i=0;i<22;i++){
+				def[i]=Math.random();
+			}
 			return def;
 		},
 		mutate: function(car_def) {
-			if(Math.random() < this.gen_mutation)
-				car_def.data[0] = Math.random();
-			if(Math.random() < this.gen_mutation)
-				car_def.data[1] = Math.random();
-			if(Math.random() < this.gen_mutation)
-				car_def.data[2] = Math.random();
-			if(Math.random() < this.gen_mutation)
-				car_def.data[3] = Math.random();
-			if(Math.random() < this.gen_mutation)
-				car_def.data[4] = Math.random();
-			if(Math.random() < this.gen_mutation)
-				car_def.data[5] = Math.random();
-			for(var i=0;i<car_def.vertices.length;i++){
+			for(var i=0;i<22;i++){
 				if(Math.random() < this.gen_mutation)
-					car_def.vertices[2*i]=Math.random();
-				if(Math.random() < this.gen_mutation)
-					car_def.vertices[2*i+1]=Math.random();
-				def.vertex_list.push(this.indiceToVertex(i,def.vertices[2*i],def.vertices[2*i+1]));
+					car_def[i] = Math.random();
 			}
 			return car_def;
 		},
@@ -145,7 +131,6 @@ var creature = function(world,id) {
 			this.alive = false;
 		},
 		checkDeath: function() {
-			// check health
 			var position = this.getPosition();
 			if(position.y > this.maxPosition.y) {
 				this.maxPosition.y = position.y;
@@ -169,15 +154,16 @@ var creature = function(world,id) {
 				}
 			}
 		},
-		P3: function(vertex_list,world) {
+		P3: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(0.0, 4.0);
 			var body = world.CreateBody(body_def);
-				body.vertex_list = vertex_list;
-				for(var i=0;i<body.vertex_list.length;i++){
-					this.P3Part(body, body.vertex_list[i],body.vertex_list[(i+1)%body.vertex_list.length]);
-				}
+			var j;
+			for(var i=0;i<vertices.length/2;i++){
+				j=(i+1)%(vertices.length/2);
+				this.P3Part(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
+			}
 			return body;
 		},
 		wheel: function(radius, density,world) {
@@ -195,17 +181,17 @@ var creature = function(world,id) {
 			return body;
 		},
 		P3Part: function(body, vertex1, vertex2) {
-			var vertex_list = new Array();
-				vertex_list.push(vertex1);
-				vertex_list.push(vertex2);
-				vertex_list.push(b2Vec2.Make(0,0));
+			var vertices = new Array();
+				vertices.push(vertex1);
+				vertices.push(vertex2);
+				vertices.push(b2Vec2.Make(0,0));
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2PolygonShape();
 				fix_def.density = 80;
 				fix_def.friction = 10;
 				fix_def.restitution = 0.2;
 				fix_def.filter.groupIndex = -1;
-				fix_def.shape.SetAsArray(vertex_list,3);
+				fix_def.shape.SetAsArray(vertices,3);
 			body.CreateFixture(fix_def);
 		}
 	};

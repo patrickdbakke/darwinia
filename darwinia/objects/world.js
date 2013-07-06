@@ -33,8 +33,6 @@ var environment=function(){
 		wheelMinRadius: 0.4,
 		wheelMaxDensity: 100,
 		wheelMinDensity: 40,
-		swapPoint1: 0,
-		swapPoint2: 0,
 		distanceMeter:0,
 		leaderPosition:{
 			x:0,
@@ -115,7 +113,7 @@ var environment=function(){
 			var c;
 			this.creatureArray = new Array();
 			for(var k = 0; k < this.generationSize; k++) {
-				c=new creature(this.world,k);
+				c=new creature(this.creatureGeneration[k],this.world,k);
 				this.creatureArray.push(c);
 				this.creatureGeneration.push(c.def);
 			}
@@ -139,7 +137,6 @@ var environment=function(){
 				}
 				newborn = this.makeChild(this.creatureGeneration[parent1],this.creatureGeneration[parent2]);
 				newborn = this.mutate(newborn);
-				newborn.is_elite = false;
 				newborn.index = k;
 				newGeneration.push(newborn);
 			}
@@ -164,57 +161,36 @@ var environment=function(){
 			return ret;
 		},
 		getParents: function() {
-			var parentIndex = -1;
 			for(var k = 0; k < this.generationSize; k++) {
 				if(Math.random() <= this.gen_parentality) {
-					parentIndex = k;
+					return k;
 					break;
 				}
 			}
-			if(parentIndex == -1) {
-				parentIndex = Math.round(Math.random()*(this.generationSize-1));
-			}
-			return parentIndex;
+			return Math.round(Math.random()*(this.generationSize-1));
 		},
-		makeChild: function(car_def1, car_def2) {
-			var newCarDef = new Object();
-			this.swapPoint1 = Math.round(Math.random()*(this.nAttributes-1));
-			this.swapPoint2 = this.swapPoint1;
-			while(this.swapPoint2 == this.swapPoint1) {
-				this.swapPoint2 = Math.round(Math.random()*(this.nAttributes-1));
+		makeChild: function(def1, def2) {
+			var swapPoint1 = Math.round(Math.random()*(this.nAttributes-1));
+			var swapPoint2 = swapPoint1;
+			while(swapPoint1 == swapPoint2) {
+				swapPoint2 = Math.round(Math.random()*(this.nAttributes-1));
 			}
-			var parents = [car_def1, car_def2];
+			var parents = [def1, def2];
 			var curparent = 0;
 			
-			newCarDef.data=[];
-			curparent = this.chooseParent(curparent,0);
-			newCarDef.wheel_radius1 = parents[curparent].wheel_radius1;
-			// newCarDef.data[0] = parents[curparent].data[0];
-			curparent = this.chooseParent(curparent,1);
-			newCarDef.wheel_radius2 = parents[curparent].wheel_radius2;
-
-			curparent = this.chooseParent(curparent,2);
-			newCarDef.wheel_vertex1 = parents[curparent].wheel_vertex1;
-			curparent = this.chooseParent(curparent,3);
-			newCarDef.wheel_vertex2 = parents[curparent].wheel_vertex2;
-
-			newCarDef.vertex_list = new Array();
-			for(var i=0;i<8;i++){
-				curparent = this.chooseParent(curparent,i+4);
-				newCarDef.vertex_list[i] = parents[curparent].vertex_list[i];
+			var newdef=[];
+			for(var i=0;i<22;i++){
+				curparent = this.chooseParent(curparent,i,swapPoint1, swapPoint2);
+				newdef[i] = parents[curparent][i];
 			}
-			curparent = this.chooseParent(curparent,12);
-			newCarDef.wheel_density1 = parents[curparent].wheel_density1;
-			curparent = this.chooseParent(curparent,13);
-			newCarDef.wheel_density2 = parents[curparent].wheel_density2;
-			return newCarDef;
+			return newdef;
 		},
 		mutate: function(car_def) {
 			return car_def;
 		},
-		chooseParent: function(curparent, attributeIndex) {
+		chooseParent: function(curparent, attributeIndex,swapPoint1, swapPoint2) {
 			var ret;
-			if((this.swapPoint1 == attributeIndex) || (this.swapPoint2 == attributeIndex)) {
+			if((swapPoint1 == attributeIndex) || (swapPoint2 == attributeIndex)) {
 				if(curparent == 1) {
 					ret = 0;
 				}else{
@@ -484,8 +460,6 @@ var environment=function(){
 			this.lastmax = 0;
 			this.lastaverage = 0;
 			this.lasteliteaverage = 0;
-			this.swapPoint1 = 0;
-			this.swapPoint2 = 0;
 			this.generationZero();
 		},
 		reset: function() {
