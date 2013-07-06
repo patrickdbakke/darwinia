@@ -8,17 +8,13 @@ var floor = function(def,environment) {
 		seed:0,
 		tiles:[],
 		color:"#8dd35f",
-		
 		init:function(){
 			
 		},
 		createFloor: function() {
-			this.seed = document.getElementById("newseed").value;
-			Math.seedrandom(this.seed);
 			var last_tile = last_fixture = last_world_coords = null;
 			var tile_position = new b2Vec2(-5,0);
 			this.tiles = new Array();
-			Math.seedrandom(this.seed);
 			for(var k = 0; k < this.maxTiles; k++) {
 				last_tile = this.createFloorTile(tile_position, (Math.random()*3 - 1.5) * 1.5 * k/this.maxTiles);
 				this.tiles.push(last_tile);

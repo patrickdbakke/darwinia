@@ -1,82 +1,145 @@
-var fruit = function(car_def,world) {
+var fruit = function(definition, world,id) {
 	var o={
+		id:id,
 		health: 100,
-		gravity: 0,
-		frames: 0,
-		car_def: car_def,
-		alive: true,
-		world: world,
-		parts:{
-			p3:null
+		maxPosition: {
+			x:0,
+			y:0,
 		},
+		minPosition:{
+			x: 0,
+			y: 0
+		},
+		max_health: 100,
+		motorSpeed: 20,
+		gravity: 0,
+		alive: true,
+		is_elite: false,
+		def:null,
+		world: world,
+		parts:[],
+		chassisMaxAxis: .5,
+		chassisMinAxis: .5,
+		
 		init:function(){
+			if(!definition){
+				this.def=this.createRandomCar();
+			}else{
+				this.def=definition;
+			}
+			var def=this.def;
 			this.gravity=new b2Vec2(0.0, -9.81);
-			this.parts.p3 = this.P3(car_def.vertex_list,world);
-			var carmass = this.parts.p3.GetMass();
+			var vertices=[];
+			for(var i=0;i<8;i++){
+				vertices[2*i]=def[2*i+6];
+				vertices[2*i+1]=def[2*i+1+6];
+			}
+			this.parts.push(this.P3(vertices,world));
+			var carmass = this.parts[0].GetMass();
+			var i=Math.floor(def[4]*8)%8;
+		},
+		indiceToVertex: function(i,val1,val2){
+			switch(i){
+				case 0:
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,0);
+					break;
+				case 1:
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,val2*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 2:
+					return new b2Vec2(0,val2*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 3:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,val2*this.chassisMaxAxis + this.chassisMinAxis);
+					break;
+				case 4:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,0);
+					break;
+				case 5:
+					return new b2Vec2(-val1*this.chassisMaxAxis - this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+				case 6:
+					return new b2Vec2(0,-val2*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+				case 7:
+					return new b2Vec2(val1*this.chassisMaxAxis + this.chassisMinAxis,-val2*this.chassisMaxAxis - this.chassisMinAxis);
+					break;
+			}
+		},
+		createRandomCar: function() {
+			var def = new Object();
+				def=[];
+			for(var i=0;i<22;i++){
+				def[i]=Math.random();
+			}
+			return def;
 		},
 		getPosition: function() {
-			return this.parts.p3.GetPosition();
+			return this.parts[0].GetPosition();
 		},
 		kill: function() {
 			var position = this.maxPosition.x;
 			var score = position;
-			scores.push({ car_def:this.car_def, v:score, x:position, y:this.maxPositiony, y2:this.minPosition.y });
-			this.world.DestroyBody(this.parts.p3);
+			scores.push({ car_def:this.def, v:score, x:position, y:this.maxPositiony, y2:this.minPosition.y });
+			this.world.DestroyBody(this.parts[0]);
 			this.alive = false;
 		},
 		checkDeath: function() {
 			var position = this.getPosition();
-			if(position.y<-10)
-				return true;
-		},
-		rotate:function(points,o,theta){
-			return points;
-			var p;
-			for(p in points){
-				points[p]={
-					x: Math.cos(theta)*(points[p].x-o.x) - Math.sin(theta)*(points[p].y-o.y)+o.x,
-					y: Math.sin(theta)*(points[p].x-o.x) + Math.cos(theta)*(points[p].y-o.y)+o.y,
+			if(position.y > this.maxPosition.y) {
+				this.maxPosition.y = position.y;
+			}
+			if(position.y < this.minPosition.y) {
+				this.minPosition.y = position.y;
+			}
+			if(position.x > this.maxPosition.x) {
+				this.health = this.max_health;
+				this.maxPosition.x = position.x;
+			}
+			if(position.x<1 && position.x>-0.5){
+				this.health-=0.5;
+			}else{
+				if(position.x<=this.maxPosition.x){
+					if(position.x > this.maxPosition.x) {
+						this.maxPosition.x = position.x;
+					}
+					if(Math.abs(this.parts[0].GetLinearVelocity().x) < 0.001) {
+						this.health -= 5;
+					}
+					this.health--;
 				}
 			}
+			if(this.health <= 0) {
+				return true;
+			}
 		},
-		P3: function(vertex_list,world) {
+		P3: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(0.0, 4.0);
 			var body = world.CreateBody(body_def);
-				body.vertex_list = this.rotate([
-					{x:0,y:1},{x:1,y:1},
-					{x:1,y:0}
-				],{x:.5,y:.5},Math.random()*Math.PI*2);
-				console.debug(body.vertex_list);
-				for(var i=0;i<body.vertex_list.length;i++){
-					this.P3Part(body, body.vertex_list[i],body.vertex_list[(i+1)%body.vertex_list.length]);
-				}
+			var j;
+			for(var i=0;i<vertices.length/2;i++){
+				j=(i+1)%(vertices.length/2);
+				this.P3Part(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
+			}
 			return body;
 		},
 		P3Part: function(body, vertex1, vertex2) {
-			var vertex_list = new Array();
-				vertex_list.push(vertex1);
-				vertex_list.push(vertex2);
-				vertex_list.push(b2Vec2.Make(0,0));
+			var vertices = new Array();
+				vertices.push(vertex1);
+				vertices.push(vertex2);
+				vertices.push(b2Vec2.Make(0,0));
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2PolygonShape();
 				fix_def.density = 80;
 				fix_def.friction = 10;
-				fix_def.restitution = .5;
+				fix_def.restitution = 0.6;
 				fix_def.filter.groupIndex = -1;
-				fix_def.shape.SetAsArray(vertex_list,3);
-			var b=body.CreateFixture(fix_def);
-			var impulseCenter={
-					x:b.GetBody().GetWorldCenter().x,
-					y:b.GetBody().GetWorldCenter().y,
-				}
-				b.GetBody().ApplyImpulse(
-					new b2Vec2(.5*Math.random(),.5*Math.random()),
-					impulseCenter
-				);
+				fix_def.shape.SetAsArray(vertices,3);
+			body.CreateFixture(fix_def);
 		}
 	};
-	o.init(car_def,world);
+	o.init(world);
 	return o;
 }

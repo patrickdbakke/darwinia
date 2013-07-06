@@ -17,20 +17,13 @@ var creature = function(definition, world,id) {
 		is_elite: false,
 		def:null,
 		world: world,
-		parts:{
-			p3:null,
-			p1:null,
-			p2:null,
-		},
-		nAttributes: 14,
+		parts:[],
 		chassisMaxAxis: 2.1,
 		chassisMinAxis: .5,
 		wheelMaxRadius: 1,
 		wheelMinRadius: 0.4,
 		wheelMaxDensity: 100,
 		wheelMinDensity: 40,
-		swapPoint1: 0,
-		swapPoint2: 0,
 		
 		init:function(){
 			if(!definition){
@@ -40,16 +33,16 @@ var creature = function(definition, world,id) {
 			}
 			var def=this.def;
 			this.gravity=new b2Vec2(0.0, -9.81);
-			this.parts.p1 = this.wheel(def[0]*this.wheelMaxRadius+this.wheelMinRadius, def[2]*this.wheelMaxDensity+this.wheelMinDensity,world);
-			this.parts.p2 = this.wheel(def[1]*this.wheelMaxRadius+this.wheelMinRadius, def[3]*this.wheelMaxDensity+this.wheelMinDensity,world);
+			this.parts.push(this.wheel(def[0]*this.wheelMaxRadius+this.wheelMinRadius, def[2]*this.wheelMaxDensity+this.wheelMinDensity,world));
+			this.parts.push(this.wheel(def[1]*this.wheelMaxRadius+this.wheelMinRadius, def[3]*this.wheelMaxDensity+this.wheelMinDensity,world));
 			var vertices=[];
 			for(var i=0;i<8;i++){
 				vertices[2*i]=def[2*i+6];
 				vertices[2*i+1]=def[2*i+1+6];
 			}
-			this.parts.p3 = this.P3(vertices,world);
+			this.parts.push(this.P3(vertices,world));
 
-			var carmass = this.parts.p3.GetMass() + this.parts.p1.GetMass() + this.parts.p2.GetMass();
+			var carmass = this.parts[2].GetMass() + this.parts[1].GetMass() + this.parts[0].GetMass();
 			var torque1 = carmass * -this.gravity.y / (def[0]*this.wheelMaxRadius+this.wheelMinRadius);
 			var torque2 = carmass * -this.gravity.y / (def[1]*this.wheelMaxRadius+this.wheelMinRadius);
 			var i=Math.floor(def[4]*8)%8;
@@ -60,8 +53,8 @@ var creature = function(definition, world,id) {
 				joint_def.maxMotorTorque = torque1;
 				joint_def.motorSpeed = -this.motorSpeed;
 				joint_def.enableMotor = true;
-				joint_def.bodyA = this.parts.p3;
-				joint_def.bodyB = this.parts.p1;
+				joint_def.bodyA = this.parts[2];
+				joint_def.bodyB = this.parts[0];
 			var joint = this.world.CreateJoint(joint_def);
 			var i=Math.floor(def[5]*8)%8;
 			randvertex = this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]);
@@ -70,8 +63,8 @@ var creature = function(definition, world,id) {
 				joint_def.maxMotorTorque = torque2;
 				joint_def.motorSpeed = -this.motorSpeed;
 				joint_def.enableMotor = true;
-				joint_def.bodyA = this.parts.p3;
-				joint_def.bodyB = this.parts.p2;
+				joint_def.bodyA = this.parts[2];
+				joint_def.bodyB = this.parts[1];
 
 			var joint = this.world.CreateJoint(joint_def);
 		},
@@ -111,13 +104,6 @@ var creature = function(definition, world,id) {
 			}
 			return def;
 		},
-		mutate: function(car_def) {
-			for(var i=0;i<22;i++){
-				if(Math.random() < this.gen_mutation)
-					car_def[i] = Math.random();
-			}
-			return car_def;
-		},
 		getPosition: function() {
 			return this.parts.p3.GetPosition();
 		},
@@ -125,9 +111,9 @@ var creature = function(definition, world,id) {
 			var position = this.maxPosition.x;
 			var score = position;
 			scores.push({ car_def:this.def, v:score, x:position, y:this.maxPositiony, y2:this.minPosition.y });
-			this.world.DestroyBody(this.parts.p3);
-			this.world.DestroyBody(this.parts.p1);
-			this.world.DestroyBody(this.parts.p2);
+			this.world.DestroyBody(this.parts[2]);
+			this.world.DestroyBody(this.parts[0]);
+			this.world.DestroyBody(this.parts[1]);
 			this.alive = false;
 		},
 		checkDeath: function() {

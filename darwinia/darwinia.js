@@ -22,6 +22,7 @@ Darwinia.routes.on("route:default",function(actions){
 	Darwinia.bottomright.show(new minimapView);
 	Darwinia.bottomleft.show(new dataView);
 	var env=new environment();
+	Math.seedrandom(seed);
 	env.init();
 });
 Darwinia.start=function(){

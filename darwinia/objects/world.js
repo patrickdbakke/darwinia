@@ -1,6 +1,6 @@
 var scores=new Array();
 once=true;
-var environment=function(){
+var environment=function(seed){
 	var env={
 		timeStep: 1.0 / 60.0,
 		doDraw: true,
@@ -26,11 +26,6 @@ var environment=function(){
 		gen_parentality: 0.2,
 		gen_mutation: 0.05,
 		gen_counter: 0,
-		nAttributes: 14,
-		chassisMaxAxis: 2.1,
-		chassisMinAxis: .5,
-		wheelMaxRadius: 1,
-		wheelMinRadius: 0.4,
 		wheelMaxDensity: 100,
 		wheelMinDensity: 40,
 		distanceMeter:0,
@@ -38,7 +33,6 @@ var environment=function(){
 			x:0,
 			y:0
 		},
-		floorseed:0,
 		
 		canvas: null,
 		precanvas: null,
@@ -49,12 +43,12 @@ var environment=function(){
 		gravity:null,
 		world:null,
 		
-		creatureGeneration:[],
+		definitions:[],
 		topScores:[],
 		graphTop:[],
 		graphElite:[],
 		graphAverage:[],
-		creatureArray:[],
+		objects:[],
 		
 		init:function(){
 			var canvasID="mainbox";
@@ -82,7 +76,6 @@ var environment=function(){
 				document.getElementById("health").appendChild(newhealth);
 			}
 			hbar.parentNode.removeChild(hbar);
-			this.floorseed = Math.seedrandom();
 			this.world = new b2World(this.gravity, this.doSleep);
 			this.floor = new floor(null, this);
 			this.floor.createFloor();
@@ -111,11 +104,11 @@ var environment=function(){
 		},
 		materializeGeneration: function() {
 			var c;
-			this.creatureArray = new Array();
+			this.objects = new Array();
 			for(var k = 0; k < this.generationSize; k++) {
-				c=new creature(this.creatureGeneration[k],this.world,k);
-				this.creatureArray.push(c);
-				this.creatureGeneration.push(c.def);
+				c=new fruit(this.definitions[k],this.world,k);
+				this.objects.push(c);
+				this.definitions.push(c.def);
 			}
 		},
 		nextGeneration: function() {
@@ -135,13 +128,13 @@ var environment=function(){
 				while(parent2 == parent1) {
 					parent2 = this.getParents();
 				}
-				newborn = this.makeChild(this.creatureGeneration[parent1],this.creatureGeneration[parent2]);
+				newborn = this.makeChild(this.definitions[parent1],this.definitions[parent2]);
 				newborn = this.mutate(newborn);
 				newborn.index = k;
 				newGeneration.push(newborn);
 			}
 			scores = new Array();
-			this.creatureGeneration = newGeneration;
+			this.definitions = newGeneration;
 			this.gen_counter++;
 			this.materializeGeneration();
 			this.deadCars = 0;
@@ -170,10 +163,10 @@ var environment=function(){
 			return Math.round(Math.random()*(this.generationSize-1));
 		},
 		makeChild: function(def1, def2) {
-			var swapPoint1 = Math.round(Math.random()*(this.nAttributes-1));
+			var swapPoint1 = Math.round(Math.random()*(Math.min(def1.length,def2.length)-1));
 			var swapPoint2 = swapPoint1;
 			while(swapPoint1 == swapPoint2) {
-				swapPoint2 = Math.round(Math.random()*(this.nAttributes-1));
+				swapPoint2 = Math.round(Math.random()*(Math.min(def1.length,def2.length)-1));
 			}
 			var parents = [def1, def2];
 			var curparent = 0;
@@ -186,6 +179,10 @@ var environment=function(){
 			return newdef;
 		},
 		mutate: function(car_def) {
+			for(var i=0;i<22;i++){
+				if(Math.random() < this.gen_mutation)
+					car_def[i] = Math.random();
+			}
 			return car_def;
 		},
 		chooseParent: function(curparent, attributeIndex,swapPoint1, swapPoint2) {
@@ -201,18 +198,12 @@ var environment=function(){
 			}
 			return ret;
 		},
-		setMutation: function(mutation) {
-			gen_mutation = parseFloat(mutation);
-		},
-		setEliteSize: function(clones) {
-			gen_champions = parseInt(clones, 10);
-		},
 		setCameraTarget: function(k) {
 			this.camera.target = k;
 		},
 		setCameraPosition: function() {
 			if(this.camera.target >= 0) {
-				var cameraTargetPosition = this.creatureArray[this.camera.target].getPosition();
+				var cameraTargetPosition = this.objects[this.camera.target].getPosition();
 			} else {
 				var cameraTargetPosition = this.leaderPosition;
 			}
@@ -235,18 +226,17 @@ var environment=function(){
 			this.realctx.drawImage(this.precanvas, 0, 0);
 		},
 		drawCars: function(ctx) {
-			for(var k = (this.creatureArray.length-1); k >= 0; k--) {
-				this.currentCreature = this.creatureArray[k];
-				if(!this.currentCreature.alive) {
+			for(var k = (this.objects.length-1); k >= 0; k--) {
+				var obj = this.objects[k];
+				if(!obj.alive) {
 					continue;
 				}
-				this.currentCreaturePos = this.currentCreature.getPosition();
-				if(this.currentCreaturePos.x < (this.camera.x - 10)) {	// too far behind, don't draw
+				if(obj.getPosition().x < (this.camera.x - 10)) {	// too far behind, don't draw
 					continue;
 				}
 				ctx.lineWidth = 1/this.camera.zoom;
-				for(part in this.currentCreature.parts){
-					var b=this.currentCreature.parts[part];
+				for(part in obj.parts){
+					var b=obj.parts[part];
 					for (f = b.GetFixtureList(); f; f = f.m_next) {
 						var s = f.GetShape();
 						if(!s.m_vertices || (s.m_radius && s.m_vertices.length<1)){
@@ -255,7 +245,7 @@ var environment=function(){
 							var rgbcolor = "rgb("+color+","+color+","+color+")";
 							this.drawCircle(b, s.m_p, s.m_radius, b.m_sweep.a, rgbcolor);
 						}else if(s.m_vertices){
-							if(this.currentCreature.is_elite) {
+							if(obj.is_elite) {
 								ctx.strokeStyle = "#44c";
 								ctx.fillStyle = "#ddf";
 							} else {
@@ -391,12 +381,12 @@ var environment=function(){
 		simulationStep: function() {
 			this.world.Step(1/30, 20, 20);
 			for(var k = 0; k < this.generationSize; k++) {
-				if(!this.creatureArray[k].alive) {
+				if(!this.objects[k].alive) {
 					continue;
 				}
-				var position = this.creatureArray[k].getPosition();
-				if(this.creatureArray[k].checkDeath()) {
-					this.creatureArray[k].kill();
+				var position = this.objects[k].getPosition();
+				if(this.objects[k].checkDeath()) {
+					this.objects[k].kill();
 					this.deadCars++;
 					$("#population").html("cars alive: " + (this.generationSize-this.deadCars));
 					if(this.deadCars >= this.generationSize) {
@@ -416,11 +406,11 @@ var environment=function(){
 		},
 		findLeader: function() {
 			var lead = 0;
-			for(var k = 0; k < this.creatureArray.length; k++) {
-				if(!this.creatureArray[k].alive) {
+			for(var k = 0; k < this.objects.length; k++) {
+				if(!this.objects[k].alive) {
 					continue;
 				}
-				position = this.creatureArray[k].getPosition();
+				position = this.objects[k].getPosition();
 				if(position.x > lead) {
 					this.leaderPosition = position;
 					this.leaderPosition.leader = k;
@@ -450,8 +440,8 @@ var environment=function(){
 			$("#cars").html('');
 			$("#topscores").html('');
 			this.clearGraphics();
-			this.creatureArray = new Array();
-			this.creatureGeneration = new Array();
+			this.objects = new Array();
+			this.definitions = new Array();
 			this.scores = new Array();
 			this.topScores = new Array();
 			this.graphTop = new Array();
@@ -469,7 +459,6 @@ var environment=function(){
 				world.DestroyBody(b);
 			}
 			this.floor.createFloor();
-			Math.seedrandom();
 			this.resetPopulation();
 			this.startSimulation();
 		},

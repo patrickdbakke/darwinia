@@ -12,6 +12,9 @@
 		<script id="jquery" src="/assets/js/backbone.marionette.min.js"></script>
 		<script src="/assets/js/seedrandom.js"></script>
 		<script src="/assets/js/box2d.js"></script>
+		<script>
+			var seed=<?php echo time(); ?>;
+		</script>
 	</head>
 	<body class="">
 		<canvas id="mainbox"></canvas>
