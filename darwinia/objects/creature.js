@@ -36,14 +36,14 @@ var creature = function(world,id) {
 			var def=this.createRandomCar();
 			this.def=def;
 			this.gravity=new b2Vec2(0.0, -9.81);
-			this.parts.p1 = this.wheel(def.wheel_radius1, def.wheel_density1,world);
-			this.parts.p2 = this.wheel(def.wheel_radius2, def.wheel_density2,world);
+			this.parts.p1 = this.wheel(def.data[0]*this.wheelMaxRadius+this.wheelMinRadius, def.data[2]*this.wheelMaxDensity+this.wheelMinDensity,world);
+			this.parts.p2 = this.wheel(def.data[1]*this.wheelMaxRadius+this.wheelMinRadius, def.data[3]*this.wheelMaxDensity+this.wheelMinDensity,world);
 			this.parts.p3 = this.P3(def.vertex_list,world);
 
 			var carmass = this.parts.p3.GetMass() + this.parts.p1.GetMass() + this.parts.p2.GetMass();
-			var torque1 = carmass * -this.gravity.y / def.wheel_radius1;
-			var torque2 = carmass * -this.gravity.y / def.wheel_radius2;
-			var randvertex = this.parts.p3.vertex_list[def.wheel_vertex1];
+			var torque1 = carmass * -this.gravity.y / (def.data[0]*this.wheelMaxRadius+this.wheelMinRadius);
+			var torque2 = carmass * -this.gravity.y / (def.data[1]*this.wheelMaxRadius+this.wheelMinRadius);
+			var randvertex = this.parts.p3.vertex_list[Math.floor(def.data[4]*8)%8];
 			var joint_def = new b2RevoluteJointDef();
 				joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
 				joint_def.localAnchorB.Set(0, 0);
@@ -53,7 +53,7 @@ var creature = function(world,id) {
 				joint_def.bodyA = this.parts.p3;
 				joint_def.bodyB = this.parts.p1;
 			var joint = this.world.CreateJoint(joint_def);
-			randvertex = this.parts.p3.vertex_list[def.wheel_vertex2];
+			randvertex = this.parts.p3.vertex_list[Math.floor(def.data[5]*8)%8];
 				joint_def.localAnchorA.Set(randvertex.x, randvertex.y);
 				joint_def.localAnchorB.Set(0, 0);
 				joint_def.maxMotorTorque = torque2;
@@ -63,30 +63,6 @@ var creature = function(world,id) {
 				joint_def.bodyB = this.parts.p2;
 
 			var joint = this.world.CreateJoint(joint_def);
-		},
-		createRandomCar: function() {
-			var v2;
-			var def = new Object();
-			def.wheel_radius1 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
-			def.wheel_radius2 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
-			def.wheel_density1 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
-			def.wheel_density2 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
-
-			def.vertex_list = new Array();
-			def.vertices=new Array();
-			for(var i=0;i<8;i++){
-				def.vertices.push(Math.random());
-				def.vertices.push(Math.random());
-				def.vertex_list.push(this.indiceToVertex(0,def.vertices[2*i],def.vertices[2*i+1]));
-			}
-
-			def.wheel_vertex1 = Math.floor(Math.random()*8)%8;
-			v2 = def.wheel_vertex1;
-			while(v2 == def.wheel_vertex1) {
-				v2 = Math.floor(Math.random()*8)%8
-			}
-			def.wheel_vertex2 = v2;
-			return def;
 		},
 		indiceToVertex: function(i,val1,val2){
 			switch(i){
@@ -116,45 +92,50 @@ var creature = function(world,id) {
 					break;
 			}
 		},
+		createRandomCar: function() {
+			var def = new Object();
+				def.data=[];
+				def.data[0] = Math.random(); //wheel 1 radius
+				def.data[1] = Math.random(); //wheel 2 radius
+				def.data[2] = Math.random(); //wheel 1 density
+				def.data[3] = Math.random(); //wheel 2 density
+				def.data[4] = Math.random(); //wheel 1 vertex
+				def.data[5] = Math.random(); //wheel 2 vertex
+				def.vertex_list = new Array();
+				def.vertices = new Array();
+				for(var i=0;i<8;i++){
+					def.vertices.push(Math.random());
+					def.vertices.push(Math.random());
+					def.vertex_list.push(this.indiceToVertex(i,def.vertices[2*i],def.vertices[2*i+1]));
+				}
+			return def;
+		},
 		mutate: function(car_def) {
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_radius1 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
+				car_def.data[0] = Math.random();
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_radius2 = Math.random()*this.wheelMaxRadius+this.wheelMinRadius;
+				car_def.data[1] = Math.random();
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_vertex1 = Math.floor(Math.random()*8)%8;
+				car_def.data[2] = Math.random();
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_vertex2 = Math.floor(Math.random()*8)%8;
+				car_def.data[3] = Math.random();
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_density1 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
+				car_def.data[4] = Math.random();
 			if(Math.random() < this.gen_mutation)
-				car_def.wheel_density2 = Math.random()*this.wheelMaxDensity+this.wheelMinDensity;
-			for(var i=0;i<car_def.vertex_list.length;i++){
-			
+				car_def.data[5] = Math.random();
+			for(var i=0;i<car_def.vertices.length;i++){
+				if(Math.random() < this.gen_mutation)
+					car_def.vertices[2*i]=Math.random();
+				if(Math.random() < this.gen_mutation)
+					car_def.vertices[2*i+1]=Math.random();
+				def.vertex_list.push(this.indiceToVertex(i,def.vertices[2*i],def.vertices[2*i+1]));
 			}
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(0,1,this.indiceToVertex(0,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(1,1,this.indiceToVertex(1,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(2,1,this.indiceToVertex(2,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(3,1,this.indiceToVertex(3,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(4,1,this.indiceToVertex(4,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(5,1,this.indiceToVertex(5,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(6,1,this.indiceToVertex(6,Math.random(),Math.random()));
-			if(Math.random() < this.gen_mutation)
-				car_def.vertex_list.splice(7,1,this.indiceToVertex(7,Math.random(),Math.random()));
 			return car_def;
 		},
 		getPosition: function() {
 			return this.parts.p3.GetPosition();
 		},
 		kill: function() {
-			console.debug("kill");
 			var position = this.maxPosition.x;
 			var score = position;
 			scores.push({ car_def:this.def, v:score, x:position, y:this.maxPositiony, y2:this.minPosition.y });
