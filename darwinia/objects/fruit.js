@@ -34,7 +34,7 @@ var fruit = function(definition, world,id) {
 				vertices[2*i]=def[2*i+6];
 				vertices[2*i+1]=def[2*i+1+6];
 			}
-			this.parts.push(this.P3(vertices,world));
+			this.parts.push(this.polygon(vertices,world));
 			var carmass = this.parts[0].GetMass();
 			var i=Math.floor(def[4]*8)%8;
 		},
@@ -78,54 +78,54 @@ var fruit = function(definition, world,id) {
 			return this.parts[0].GetPosition();
 		},
 		kill: function() {
-			var position = this.maxPosition.x;
-			var score = position;
-			scores.push({ car_def:this.def, v:score, x:position, y:this.maxPositiony, y2:this.minPosition.y });
+			var d = this.maxPosition.x;
+			scores.push({ car_def:this.def, v:d, x:d, y:this.maxPositiony, y2:this.minPosition.y });
 			this.world.DestroyBody(this.parts[0]);
 			this.alive = false;
 		},
 		checkDeath: function() {
-			var position = this.getPosition();
-			if(position.y > this.maxPosition.y) {
-				this.maxPosition.y = position.y;
+			var p = this.getPosition();
+			if(p.y > this.maxPosition.y) {
+				this.maxPosition.y = p.y;
 			}
-			if(position.y < this.minPosition.y) {
-				this.minPosition.y = position.y;
+			if(p.y < this.minPosition.y) {
+				this.minPosition.y = p.y;
 			}
-			if(position.x > this.maxPosition.x) {
+			if(p.x > this.maxPosition.x) {
 				this.health = this.max_health;
-				this.maxPosition.x = position.x;
+				this.maxPosition.x = p.x;
 			}
-			if(position.x<1 && position.x>-0.5){
-				this.health-=0.5;
+			if(p.x<this.maxPosition.x){
+				if(p.x > this.maxPosition.x) {
+					this.maxPosition.x = p.x;
+				}
+				if(Math.abs(this.parts[0].GetLinearVelocity().x) < 0.001) {
+					this.health -= 5;
+				}
+				this.health--;
 			}else{
-				if(position.x<=this.maxPosition.x){
-					if(position.x > this.maxPosition.x) {
-						this.maxPosition.x = position.x;
-					}
-					if(Math.abs(this.parts[0].GetLinearVelocity().x) < 0.001) {
-						this.health -= 5;
-					}
-					this.health--;
+				if(Math.abs(this.parts[0].GetLinearVelocity().x) < 0.001 && Math.abs(this.parts[0].GetLinearVelocity().y) < 0.001) {
+					this.health -= 1;
 				}
 			}
 			if(this.health <= 0) {
 				return true;
 			}
 		},
-		P3: function(vertices,world) {
+		polygon: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
-				body_def.position.Set(0.0, 4.0);
+				var x=Math.random()*10;
+				body_def.position.Set(x, 10.0);
 			var body = world.CreateBody(body_def);
 			var j;
 			for(var i=0;i<vertices.length/2;i++){
 				j=(i+1)%(vertices.length/2);
-				this.P3Part(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
+				this.polygonPart(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
 			}
 			return body;
 		},
-		P3Part: function(body, vertex1, vertex2) {
+		polygonPart: function(body, vertex1, vertex2) {
 			var vertices = new Array();
 				vertices.push(vertex1);
 				vertices.push(vertex2);
@@ -134,7 +134,7 @@ var fruit = function(definition, world,id) {
 				fix_def.shape = new b2PolygonShape();
 				fix_def.density = 80;
 				fix_def.friction = 10;
-				fix_def.restitution = 0.6;
+				fix_def.restitution = 0.3;
 				fix_def.filter.groupIndex = -1;
 				fix_def.shape.SetAsArray(vertices,3);
 			body.CreateFixture(fix_def);

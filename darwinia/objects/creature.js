@@ -40,7 +40,7 @@ var creature = function(definition, world,id) {
 				vertices[2*i]=def[2*i+6];
 				vertices[2*i+1]=def[2*i+1+6];
 			}
-			this.parts.push(this.P3(vertices,world));
+			this.parts.push(this.polygon(vertices,world));
 
 			var carmass = this.parts[2].GetMass() + this.parts[1].GetMass() + this.parts[0].GetMass();
 			var torque1 = carmass * -this.gravity.y / (def[0]*this.wheelMaxRadius+this.wheelMinRadius);
@@ -105,7 +105,7 @@ var creature = function(definition, world,id) {
 			return def;
 		},
 		getPosition: function() {
-			return this.parts.p3.GetPosition();
+			return this.parts[2].GetPosition();
 		},
 		kill: function() {
 			var position = this.maxPosition.x;
@@ -131,7 +131,7 @@ var creature = function(definition, world,id) {
 				if(position.x > this.maxPosition.x) {
 					this.maxPosition.x = position.x;
 				}
-				if(Math.abs(this.parts.p3.GetLinearVelocity().x) < 0.001) {
+				if(Math.abs(this.parts[2].GetLinearVelocity().x) < 0.001) {
 					this.health -= 5;
 				}
 				this.health--;
@@ -140,7 +140,7 @@ var creature = function(definition, world,id) {
 				}
 			}
 		},
-		P3: function(vertices,world) {
+		polygon: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(0.0, 4.0);
@@ -148,7 +148,7 @@ var creature = function(definition, world,id) {
 			var j;
 			for(var i=0;i<vertices.length/2;i++){
 				j=(i+1)%(vertices.length/2);
-				this.P3Part(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
+				this.polygonPart(body, this.indiceToVertex(i,vertices[2*i],vertices[2*i+1]),this.indiceToVertex(j,vertices[2*j],vertices[2*j+1]));
 			}
 			return body;
 		},
@@ -166,7 +166,7 @@ var creature = function(definition, world,id) {
 			body.CreateFixture(fix_def);
 			return body;
 		},
-		P3Part: function(body, vertex1, vertex2) {
+		polygonPart: function(body, vertex1, vertex2) {
 			var vertices = new Array();
 				vertices.push(vertex1);
 				vertices.push(vertex2);

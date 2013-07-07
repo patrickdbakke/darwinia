@@ -3,8 +3,6 @@ once=true;
 var environment=function(seed){
 	var env={
 		timeStep: 1.0 / 60.0,
-		doDraw: true,
-		paused: false,
 		stop:false,
 		camera:{
 			target: -1,// which car should we follow? -1 = leader
@@ -13,7 +11,6 @@ var environment=function(seed){
 			zoom:70,
 			speed:0.05
 		},
-		doSleep: true,
 		
 		width:0,
 		height:0,
@@ -76,9 +73,10 @@ var environment=function(seed){
 				document.getElementById("health").appendChild(newhealth);
 			}
 			hbar.parentNode.removeChild(hbar);
-			this.world = new b2World(this.gravity, this.doSleep);
-			this.floor = new floor(null, this);
+			this.world = new b2World(this.gravity, true);
+			this.floor = new floor(this);
 			this.floor.createFloor();
+			this.forest=new forest(this,this.floor.floorPoints());
 			this.generationZero();
 			var that=this;
 			this.stop=false;
@@ -106,7 +104,7 @@ var environment=function(seed){
 			var c;
 			this.objects = new Array();
 			for(var k = 0; k < this.generationSize; k++) {
-				c=new fruit(this.definitions[k],this.world,k);
+				c=new creature(this.definitions[k],this.world,k);
 				this.objects.push(c);
 				this.definitions.push(c.def);
 			}
@@ -219,7 +217,8 @@ var environment=function(seed){
 			this.setCameraPosition();
 			ctx.translate(this.width*this.zoom/100-(this.camera.x*this.zoom), this.height*this.zoom/50+ (this.camera.y*this.zoom));
 			ctx.scale(this.zoom, -this.zoom);
-			this.floor.drawFloor(ctx,this.camera);
+			this.forest.draw(ctx,this.camera);
+			this.floor.draw(ctx,this.camera);
 			this.drawCars(ctx);
 			ctx.restore();
 			this.canvas.width=this.canvas.width;
@@ -261,28 +260,16 @@ var environment=function(seed){
 				}
 			}
 		},
-		drawVirtualPoly: function(body, vtx, n_vtx) {
+		drawVirtualPoly: function(body, vtx) {
 			var ctx=this.prectx;
 			var p;
 			var p0 = body.GetWorldPoint(vtx[0]);
 			ctx.moveTo(p0.x, p0.y);
-			for (var i = 1; i < n_vtx; i++) {
+			for (var i = 1; i < vtx.length; i++) {
 				p = body.GetWorldPoint(vtx[i]);
 				ctx.lineTo(p.x, p.y);
 			}
 			ctx.lineTo(p0.x, p0.y);
-		},
-		drawPoly: function(body, vtx, n_vtx) {
-			ctx.beginPath();
-			var p0 = body.GetWorldPoint(vtx[0]);
-			ctx.moveTo(p0.x, p0.y);
-			for (var i = 1; i < n_vtx; i++) {
-				p = body.GetWorldPoint(vtx[i]);
-				ctx.lineTo(p.x, p.y);
-			}
-			ctx.lineTo(p0.x, p0.y);
-			ctx.fill();
-			ctx.stroke();
 		},
 		drawCircle: function(body, center, radius, angle, color) {
 			var ctx=this.prectx;
@@ -433,7 +420,7 @@ var environment=function(seed){
 			doAnimation();
 		},
 		stopSimulation: function() {
-			// this.stop=true;
+			this.stop=true;
 		},
 		resetPopulation: function() {
 			$("#generation").html('');
@@ -453,7 +440,6 @@ var environment=function(seed){
 			this.generationZero();
 		},
 		reset: function() {
-			this.doDraw = true;
 			this.stopSimulation();
 			for (b = this.world.m_bodyList; b; b = b.m_next) {
 				world.DestroyBody(b);

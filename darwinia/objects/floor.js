@@ -1,4 +1,4 @@
-var floor = function(def,environment) {
+var floor = function(environment) {
 	var o={
 		environment:environment,
 		maxTiles: 200,
@@ -23,6 +23,13 @@ var floor = function(def,environment) {
 				tile_position = last_world_coords;
 			}
 		},
+		floorPoints:function(){
+			var tilePositions = new Array();
+			for(var k = 0; k < this.tiles.length; k++) {
+				tilePositions.push(this.tiles[k].GetWorldPoint(this.tiles[k].GetFixtureList().GetShape().m_vertices[3]));
+			}
+			return tilePositions;
+		},
 		createFloorTile: function(position, angle) {
 			var body_def = new b2BodyDef();
 				body_def.position.Set(position.x, position.y);
@@ -36,12 +43,12 @@ var floor = function(def,environment) {
 				coords.push(new b2Vec2(this.groundPieceWidth,-this.groundPieceHeight));
 				coords.push(new b2Vec2(this.groundPieceWidth,0));
 			var center = new b2Vec2(0,0);
-			var newcoords = this.rotateFloorTile(coords, center, angle);
-			fix_def.shape.SetAsArray(newcoords);
-			body.CreateFixture(fix_def);
+			var newcoords = this.rotate(coords, center, angle);
+				fix_def.shape.SetAsArray(newcoords);
+				body.CreateFixture(fix_def);
 			return body;
 		},
-		rotateFloorTile: function(coords, center, angle) {
+		rotate: function(coords, center, angle) {
 			var newcoords = new Array();
 			for(var k = 0; k < coords.length; k++) {
 				nc = new Object();
@@ -51,23 +58,19 @@ var floor = function(def,environment) {
 			}
 			return newcoords;
 		},
-		drawFloor: function(ctx,camera) {
+		draw: function(ctx,camera) {
 			ctx.strokeStyle = "#000";
 			ctx.fillStyle = this.color;
 			ctx.lineWidth = 1/camera.zoom;
 			ctx.beginPath();
 			outer_loop:
-			for(var k = Math.max(0,this.last_drawn_tile-20); k < this.tiles.length; k++) {
+			for(var k = 0; k < this.tiles.length; k++) {
 				var b = this.tiles[k];
 				for (var f = b.GetFixtureList(); f; f = f.m_next) {
 					var s = f.GetShape();
 					var shapePosition = b.GetWorldPoint(s.m_vertices[0]).x;
 					if((shapePosition > (camera.x - this.environment.width/2/100*2.5)) && (shapePosition < (camera.x + this.environment.width/2/100*2.5))) {
 						this.environment.drawVirtualPoly(b, s.m_vertices, s.m_vertexCount);
-					}
-					if(shapePosition > camera.x + this.width/2/100*2.5) {
-						this.last_drawn_tile = k;
-						break outer_loop;
 					}
 				}
 			}
