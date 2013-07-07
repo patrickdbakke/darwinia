@@ -10,6 +10,10 @@ var creature = function(definition, world,id) {
 			x: 0,
 			y: 0
 		},
+		position:{
+			x:0,
+			y:4
+		},
 		max_health: 100,
 		motorSpeed: 20,
 		gravity: 0,
@@ -143,7 +147,7 @@ var creature = function(definition, world,id) {
 		polygon: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
-				body_def.position.Set(0.0, 4.0);
+				body_def.position.Set(this.position.x, this.position.y);
 			var body = world.CreateBody(body_def);
 			var j;
 			for(var i=0;i<vertices.length/2;i++){

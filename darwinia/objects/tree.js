@@ -3,8 +3,9 @@ var forest=function(environment,floorPoints){
 		floorPoints:floorPoints,
 		environment:environment,
 		treecolor:"#784418",
-		budcolor:"#00f",
+		budcolor:"rgba(34,85,0,.8)",
 		treePolys:[],
+		budPolys:[],
 		trees:[],
 		treeOdds:0.7,
 		init:function(){
@@ -15,6 +16,9 @@ var forest=function(environment,floorPoints){
 					var buds=t.createBuds();
 					for(var j=0;j<parts.length;j++){
 						this.treePolys.push(parts[j]);
+					}
+					for(var j=0;j<buds.length;j++){
+						this.budPolys.push(buds[j]);
 					}
 					this.trees.push(t);
 				}
@@ -38,9 +42,31 @@ var forest=function(environment,floorPoints){
 			}
 			ctx.fill();
 			ctx.stroke();
+			this.drawBuds(ctx,camera);
 		},
-		germinate:function(){
-			
+		drawBuds:function(ctx,camera){
+			ctx.strokeStyle = "#000";
+			ctx.fillStyle = this.budcolor;
+			ctx.lineWidth = 1/camera.zoom;
+			ctx.beginPath();
+			outer_loop:
+			for(var k = 0; k < this.budPolys.length; k++) {
+				var b = this.budPolys[k];
+				for (var f = b.GetFixtureList(); f; f = f.m_next) {
+					var s = f.GetShape();
+					var shapePosition = b.GetWorldPoint(s.m_vertices[0]).x;
+					if((shapePosition > (camera.x - this.environment.width/2/100*2.5)) && (shapePosition < (camera.x + this.environment.width/2/100*2.5))) {
+						this.environment.drawVirtualPoly(b, s.m_vertices, s.m_vertexCount);
+					}
+				}
+			}
+			ctx.fill();
+			ctx.stroke();
+		},
+		germinate:function(k){
+			var i=Math.floor(this.budPolys.length*Math.random());
+			var position=this.budPolys[i].GetPosition();
+			return new fruit(null,this.environment.world,k,position);
 		}
 	};
 	o.init();
@@ -53,6 +79,8 @@ var tree = function(environment) {
 		buds:[],
 		branchHeight: 3,
 		branchWidth: 1.25,
+		leafHeight:3,
+		leafWidth:1.75,
 		maxTreeSize:20,
 		init:function(){
 		
@@ -94,19 +122,38 @@ var tree = function(environment) {
 				};
 				newPosition.y-=thickness*.2;
 			if(thickness>.4 && this.parts.length<this.maxTreeSize){
-				this.createTreeBranch(newPosition,thickness*.9,Math.PI/(1+Math.random()*2));
+				this.createTreeBranch(newPosition,thickness*.7,Math.PI/(1+Math.random()*2));
 				if(Math.random()>.5){
-					this.createTreeBranch(newPosition,thickness*.9,Math.PI/(1+Math.random()*2));
-				}else{
-					this.createBud();
+					this.createTreeBranch(newPosition,thickness,Math.PI/(1+Math.random()*2));
 				}
+			}else if(thickness<.9){
+				this.createBud(newPosition,thickness/.9,Math.PI/(Math.random()));
+				this.createBud(newPosition,thickness/.9,Math.PI/(1+Math.random()));
+				this.createBud(newPosition,thickness/.9,Math.PI/(-Math.random()));
 			}
 		},
 		createBuds:function(){
 			return this.buds;
 		},
-		createBud:function(){
-		
+		createBud:function(position,thickness,angle){
+			var body_def = new b2BodyDef();
+				body_def.position.Set(position.x, position.y-.1);
+			var body = this.environment.world.CreateBody(body_def);
+			var fix_def = new b2FixtureDef();
+				fix_def.shape = new b2PolygonShape();
+				fix_def.friction = 0.5;
+				fix_def.filter.groupIndex = -1;
+			var coords = new Array();
+				coords.push(new b2Vec2(0,0));
+				coords.push(new b2Vec2(0,-this.leafWidth*thickness*2.1));
+				coords.push(new b2Vec2(this.leafHeight*thickness*2.1,-this.leafWidth*thickness/2));
+				coords.push(new b2Vec2(this.leafHeight*thickness*2,-this.leafWidth*thickness/2));
+				coords.push(new b2Vec2(this.leafHeight*thickness*2,0));
+			var center = new b2Vec2(0,0);
+			var newcoords = this.rotate(coords, center, angle);
+				fix_def.shape.SetAsArray(newcoords);
+				body.CreateFixture(fix_def);
+			this.buds.push(body);
 		},
 		rotate: function(coords, center, angle) {
 			var newcoords = new Array();

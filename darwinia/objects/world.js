@@ -47,6 +47,9 @@ var environment=function(seed){
 		graphAverage:[],
 		objects:[],
 		
+		seedCount:0,
+		maxSeedCount:20,
+		
 		init:function(){
 			var canvasID="mainbox";
 			this.height=Math.min($(document).height(),600);
@@ -103,10 +106,16 @@ var environment=function(seed){
 		materializeGeneration: function() {
 			var c;
 			this.objects = new Array();
+			this.fruit = new Array();
+			this.seedCount=0;
 			for(var k = 0; k < this.generationSize; k++) {
 				c=new creature(this.definitions[k],this.world,k);
 				this.objects.push(c);
 				this.definitions.push(c.def);
+			}
+			while(this.seedCount<this.maxSeedCount){
+				this.fruit.push(this.forest.germinate(this.seedCount));
+				this.seedCount++;
 			}
 		},
 		nextGeneration: function() {
@@ -219,18 +228,18 @@ var environment=function(seed){
 			ctx.scale(this.zoom, -this.zoom);
 			this.forest.draw(ctx,this.camera);
 			this.floor.draw(ctx,this.camera);
-			this.drawCars(ctx);
+			this.drawObjects(ctx);
 			ctx.restore();
 			this.canvas.width=this.canvas.width;
 			this.realctx.drawImage(this.precanvas, 0, 0);
 		},
-		drawCars: function(ctx) {
+		drawObjects: function(ctx) {
 			for(var k = (this.objects.length-1); k >= 0; k--) {
 				var obj = this.objects[k];
 				if(!obj.alive) {
 					continue;
 				}
-				if(obj.getPosition().x < (this.camera.x - 10)) {	// too far behind, don't draw
+				if(obj.getPosition().x < (this.camera.x - 10) || obj.getPosition().x>(this.camera.x + this.width/2/100*2.5)) {
 					continue;
 				}
 				ctx.lineWidth = 1/this.camera.zoom;
@@ -251,6 +260,35 @@ var environment=function(seed){
 								ctx.strokeStyle = "#c44";
 								ctx.fillStyle = "#fdd";
 							}
+							ctx.beginPath();
+							this.drawVirtualPoly(b, s.m_vertices, s.m_vertexCount);
+							ctx.fill();
+							ctx.stroke();
+						}
+					}
+				}
+			}
+			for(var k = (this.fruit.length-1); k >= 0; k--) {
+				var obj = this.fruit[k];
+				if(!obj.alive) {
+					continue;
+				}
+				if(obj.getPosition().x < (this.camera.x - 10) || obj.getPosition().x>(this.camera.x + this.width/2/100*2.5)) {
+					continue;
+				}
+				ctx.lineWidth = 1/this.camera.zoom;
+				for(part in obj.parts){
+					var b=obj.parts[part];
+					for (f = b.GetFixtureList(); f; f = f.m_next) {
+						var s = f.GetShape();
+						if(!s.m_vertices || (s.m_radius && s.m_vertices.length<1)){
+							ctx.strokeStyle = "#444";
+							var color = Math.round(255 - (255 * (f.m_density - this.wheelMinDensity)) / this.wheelMaxDensity).toString();
+							var rgbcolor = "rgb("+color+","+color+","+color+")";
+							this.drawCircle(b, s.m_p, s.m_radius, b.m_sweep.a, rgbcolor);
+						}else if(s.m_vertices){
+							ctx.strokeStyle = "#d4aa00";
+							ctx.fillStyle = "#ffdd55";
 							ctx.beginPath();
 							this.drawVirtualPoly(b, s.m_vertices, s.m_vertexCount);
 							ctx.fill();

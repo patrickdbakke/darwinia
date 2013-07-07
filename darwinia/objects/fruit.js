@@ -1,4 +1,4 @@
-var fruit = function(definition, world,id) {
+var fruit = function(definition, world,id,position) {
 	var o={
 		id:id,
 		health: 100,
@@ -9,6 +9,10 @@ var fruit = function(definition, world,id) {
 		minPosition:{
 			x: 0,
 			y: 0
+		},
+		position:position || {
+			x:0,
+			y:4
 		},
 		max_health: 100,
 		motorSpeed: 20,
@@ -109,14 +113,13 @@ var fruit = function(definition, world,id) {
 				}
 			}
 			if(this.health <= 0) {
-				return true;
+				// return true;
 			}
 		},
 		polygon: function(vertices,world) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
-				var x=Math.random()*10;
-				body_def.position.Set(x, 10.0);
+				body_def.position.Set(this.position.x, this.position.y);
 			var body = world.CreateBody(body_def);
 			var j;
 			for(var i=0;i<vertices.length/2;i++){
@@ -135,7 +138,7 @@ var fruit = function(definition, world,id) {
 				fix_def.density = 80;
 				fix_def.friction = 10;
 				fix_def.restitution = 0.3;
-				fix_def.filter.groupIndex = -1;
+				fix_def.filter.groupIndex =-1;
 				fix_def.shape.SetAsArray(vertices,3);
 			body.CreateFixture(fix_def);
 		}
