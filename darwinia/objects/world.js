@@ -53,24 +53,7 @@ var environment=function(seed){
 		
 		init:function(){
 			/* override collision detection */
-			b2ContactFilter.prototype.ShouldCollide = function(fixtureA, fixtureB) {
-			  var filter1 = fixtureA.GetFilterData();
-			  var filter2 = fixtureB.GetFilterData();
-				
-			  if(!(fixtureA.m_body.m_userData && fixtureB.m_body.m_userData && 
-				  (fixtureA.m_body.m_userData.type=="fruit" || fixtureA.m_body.m_userData.type=="creature") &&
-				  (fixtureB.m_body.m_userData.type=="fruit" || fixtureB.m_body.m_userData.type=="creature") && 
-				  fixtureA.m_body.m_userData.type!=fixtureB.m_body.m_userData.type)){
-				  if(filter1.groupIndex == filter2.groupIndex && filter1.groupIndex != 0) {
-					return filter1.groupIndex > 0;
-				  }
-			  }else{
-				  return true;
-			  }
-			  var collide = (filter1.maskBits & filter2.categoryBits) != 0 && (filter1.categoryBits & filter2.maskBits) != 0;
-			  return collide;
-			};
-			
+			this.patchBox2dJS();
 			var canvasID="mainbox";
 			this.height=Math.min($(document).height(),600);
 			this.width=Math.min($(document).width(),1200);
@@ -111,6 +94,25 @@ var environment=function(seed){
 			};
 			doAnimation();
 		},
+		patchBox2dJS:function(){
+			b2ContactFilter.prototype.ShouldCollide = function(fixtureA, fixtureB) {
+			  var filter1 = fixtureA.GetFilterData();
+			  var filter2 = fixtureB.GetFilterData();
+				
+			  if(!(fixtureA.m_body.m_userData && fixtureB.m_body.m_userData && 
+				  (fixtureA.m_body.m_userData.type=="fruit" || fixtureA.m_body.m_userData.type=="creature") &&
+				  (fixtureB.m_body.m_userData.type=="fruit" || fixtureB.m_body.m_userData.type=="creature") && 
+				  fixtureA.m_body.m_userData.type!=fixtureB.m_body.m_userData.type)){
+				  if(filter1.groupIndex == filter2.groupIndex && filter1.groupIndex != 0) {
+					return filter1.groupIndex > 0;
+				  }
+			  }else{
+				  return true;
+			  }
+			  var collide = (filter1.maskBits & filter2.categoryBits) != 0 && (filter1.categoryBits & filter2.maskBits) != 0;
+			  return collide;
+			};
+		}
 		detectCollisions:function(){
 			var node = this.world.GetBodyList();
 			while (node) {
