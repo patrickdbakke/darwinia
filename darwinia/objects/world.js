@@ -112,7 +112,7 @@ var environment=function(seed){
 			  var collide = (filter1.maskBits & filter2.categoryBits) != 0 && (filter1.categoryBits & filter2.maskBits) != 0;
 			  return collide;
 			};
-		}
+		},
 		detectCollisions:function(){
 			var node = this.world.GetBodyList();
 			while (node) {
