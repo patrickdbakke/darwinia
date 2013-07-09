@@ -33,6 +33,9 @@ var floor = function(environment) {
 		createFloorTile: function(position, angle) {
 			var body_def = new b2BodyDef();
 				body_def.position.Set(position.x, position.y);
+				body_def.userData={
+					type:"floor"
+				};
 			var body = this.environment.world.CreateBody(body_def);
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2PolygonShape();

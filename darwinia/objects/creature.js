@@ -11,7 +11,7 @@ var creature = function(definition, world,id) {
 			y: 0
 		},
 		position:{
-			x:0,
+			x:Math.random()*20,
 			y:4
 		},
 		max_health: 100,
@@ -148,6 +148,9 @@ var creature = function(definition, world,id) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(this.position.x, this.position.y);
+				body_def.userData={
+					type:"creature"
+				};
 			var body = world.CreateBody(body_def);
 			var j;
 			for(var i=0;i<vertices.length/2;i++){
@@ -160,6 +163,9 @@ var creature = function(definition, world,id) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(0, 0);
+				body_def.userData={
+					type:"creature"
+				};
 			var body = world.CreateBody(body_def);
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2CircleShape(radius);

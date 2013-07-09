@@ -120,6 +120,9 @@ var fruit = function(definition, world,id,position) {
 			var body_def = new b2BodyDef();
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(this.position.x, this.position.y);
+				body_def.userData={
+					type:"fruit"
+				};
 			var body = world.CreateBody(body_def);
 			var j;
 			for(var i=0;i<vertices.length/2;i++){

@@ -92,6 +92,9 @@ var tree = function(environment) {
 		createTreeBranch:function(position,thickness,angle){
 			var body_def = new b2BodyDef();
 				body_def.position.Set(position.x, position.y-.1);
+				body_def.userData={
+					type:"tree"
+				};
 			var body = this.environment.world.CreateBody(body_def);
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2PolygonShape();
@@ -138,6 +141,9 @@ var tree = function(environment) {
 		createBud:function(position,thickness,angle){
 			var body_def = new b2BodyDef();
 				body_def.position.Set(position.x, position.y-.1);
+				body_def.userData={
+					type:"bud"
+				};
 			var body = this.environment.world.CreateBody(body_def);
 			var fix_def = new b2FixtureDef();
 				fix_def.shape = new b2PolygonShape();

@@ -1,5 +1,5 @@
 var scores=new Array();
-once=true;
+once=0;
 var environment=function(seed){
 	var env={
 		timeStep: 1.0 / 60.0,
@@ -17,12 +17,16 @@ var environment=function(seed){
 		zoom:.5,
 		graphheight: 200,
 		graphwidth: 400,
-		generationSize: 20,
 		
+		generationSize: 2,
 		gen_champions: 1,
 		gen_parentality: 0.2,
 		gen_mutation: 0.05,
 		gen_counter: 0,
+		
+		fruitCount:0,
+		maxFruitCount:20,
+
 		wheelMaxDensity: 100,
 		wheelMinDensity: 40,
 		distanceMeter:0,
@@ -46,9 +50,6 @@ var environment=function(seed){
 		graphElite:[],
 		graphAverage:[],
 		objects:[],
-		
-		seedCount:0,
-		maxSeedCount:20,
 		
 		init:function(){
 			var canvasID="mainbox";
@@ -86,9 +87,36 @@ var environment=function(seed){
 			var doAnimation=function(){
 				that.simulationStep();
 				that.drawScreen();
+				that.detectCollisions();
 				requestAnimationFrame(doAnimation);
 			};
 			doAnimation();
+		},
+		detectCollisions:function(){
+			var node = this.world.GetBodyList();
+			while (node) {
+				var curr_node = node;
+					node = node.GetNext();
+				if(curr_node.m_userData && curr_node.m_userData.type=="creature"){
+					var edge = curr_node.GetContactList();
+					while (edge)  {
+						var other=edge.other;
+						if(other.m_userData && other.m_userData.type=="fruit"){
+							if(once<10){
+								console.debug(curr_node,other);
+								once++;
+							}
+							if (other.GetType() == b2Body.b2_dynamicBody) {
+								var othershape = other.GetFixtureList().GetShape();
+								if (othershape.GetType() == b2Shape.e_polygonShape) {
+									break;	
+								 }
+							 }
+						}
+						 edge = edge.next;
+					}
+				}
+			}
 		},
 		showDistance: function(distance, height) {
 			$("#distancemeter").html("distance: "+distance+" meters<br />height: "+height+" meters");
@@ -107,15 +135,15 @@ var environment=function(seed){
 			var c;
 			this.objects = new Array();
 			this.fruit = new Array();
-			this.seedCount=0;
+			this.fruitCount=0;
 			for(var k = 0; k < this.generationSize; k++) {
 				c=new creature(this.definitions[k],this.world,k);
 				this.objects.push(c);
 				this.definitions.push(c.def);
 			}
-			while(this.seedCount<this.maxSeedCount){
-				this.fruit.push(this.forest.germinate(this.seedCount));
-				this.seedCount++;
+			while(this.fruitCount<this.maxFruitCount){
+				this.fruit.push(this.forest.germinate(this.fruitCount));
+				this.fruitCount++;
 			}
 		},
 		nextGeneration: function() {
@@ -453,6 +481,7 @@ var environment=function(seed){
 			var doAnimation=function(){
 				that.simulationStep();
 				that.drawScreen();
+				that.detectCollisions();
 				requestAnimationFrame(doAnimation);
 			};
 			doAnimation();

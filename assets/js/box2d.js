@@ -9394,15 +9394,24 @@ b2ContactFilter.prototype.__constructor = function() {
 };
 b2ContactFilter.prototype.__varz = function() {
 };
+var twice=true;
 b2ContactFilter.b2_defaultFilter = new b2ContactFilter;
 b2ContactFilter.prototype.ShouldCollide = function(fixtureA, fixtureB) {
   var filter1 = fixtureA.GetFilterData();
   var filter2 = fixtureB.GetFilterData();
-  if(filter1.groupIndex == filter2.groupIndex && filter1.groupIndex != 0) {
-    return filter1.groupIndex > 0
+	
+  if(!(fixtureA.m_body.m_userData && fixtureB.m_body.m_userData && 
+	  (fixtureA.m_body.m_userData.type=="fruit" || fixtureA.m_body.m_userData.type=="creature") &&
+	  (fixtureB.m_body.m_userData.type=="fruit" || fixtureB.m_body.m_userData.type=="creature") && 
+	  fixtureA.m_body.m_userData.type!=fixtureB.m_body.m_userData.type)){
+	  if(filter1.groupIndex == filter2.groupIndex && filter1.groupIndex != 0) {
+		return filter1.groupIndex > 0;
+	  }
+  }else{
+	  return true;
   }
   var collide = (filter1.maskBits & filter2.categoryBits) != 0 && (filter1.categoryBits & filter2.maskBits) != 0;
-  return collide
+  return collide;
 };
 b2ContactFilter.prototype.RayCollide = function(userData, fixture) {
   if(!userData) {
@@ -10300,6 +10309,14 @@ b2ContactManager.prototype.AddPair = function(proxyUserDataA, proxyUserDataB) {
   }
   if(this.m_contactFilter.ShouldCollide(fixtureA, fixtureB) == false) {
     return
+  }
+  if(this.m_userData && this.m_userData.type=="creature"){
+	console.debug("creature");
+	return;
+  }
+  if(this.m_userData && this.m_userData.type=="fruit"){
+	console.debug("fruit");
+	return;
   }
   var c = this.m_contactFactory.Create(fixtureA, fixtureB);
   fixtureA = c.GetFixtureA();
