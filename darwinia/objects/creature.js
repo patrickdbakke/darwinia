@@ -16,6 +16,7 @@ var creature = function(definition, world,id) {
 		},
 		max_health: 100,
 		motorSpeed: 20,
+		score:0,
 		gravity: 0,
 		alive: true,
 		is_elite: false,
@@ -111,6 +112,9 @@ var creature = function(definition, world,id) {
 		getPosition: function() {
 			return this.parts[2].GetPosition();
 		},
+		getScore: function() {
+			return this.score;
+		},
 		kill: function() {
 			var position = this.maxPosition.x;
 			var score = position;
@@ -149,7 +153,9 @@ var creature = function(definition, world,id) {
 				body_def.type = b2Body.b2_dynamicBody;
 				body_def.position.Set(this.position.x, this.position.y);
 				body_def.userData={
-					type:"creature"
+					type:"creature",
+					id:this.id,
+					score:0
 				};
 			var body = world.CreateBody(body_def);
 			var j;

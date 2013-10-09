@@ -18,14 +18,14 @@ var environment=function(seed){
 		graphheight: 200,
 		graphwidth: 400,
 		
-		generationSize: 2,
+		generationSize: 1,
 		gen_champions: 1,
 		gen_parentality: 0.2,
 		gen_mutation: 0.05,
 		gen_counter: 0,
 		
 		fruitCount:0,
-		maxFruitCount:20,
+		maxFruitCount:1,
 
 		wheelMaxDensity: 100,
 		wheelMinDensity: 40,
@@ -89,7 +89,7 @@ var environment=function(seed){
 			var doAnimation=function(){
 				that.simulationStep();
 				that.drawScreen();
-				that.detectCollisions();
+				that.interactions();
 				requestAnimationFrame(doAnimation);
 			};
 			doAnimation();
@@ -113,34 +113,63 @@ var environment=function(seed){
 			  return collide;
 			};
 		},
-		detectCollisions:function(){
+		interactions:function(){
 			var node = this.world.GetBodyList();
 			while (node) {
 				var curr_node = node;
 					node = node.GetNext();
 				if(curr_node.m_userData && curr_node.m_userData.type=="creature"){
+					/* detect collisions */
 					var edge = curr_node.GetContactList();
+					var other;
 					while (edge)  {
-						var other=edge.other;
+						other=edge.other;
 						if(other.m_userData && other.m_userData.type=="fruit"){
-							if(once<10){
-								console.debug(curr_node,other);
-								once++;
-							}
-							if (other.GetType() == b2Body.b2_dynamicBody) {
-								var othershape = other.GetFixtureList().GetShape();
-								if (othershape.GetType() == b2Shape.e_polygonShape) {
-									break;	
-								 }
-							 }
+							this.world.DestroyBody(other);
+							curr_node.m_userData.score++;
+							// if (other.GetType() == b2Body.b2_dynamicBody) {
+								// var othershape = other.GetFixtureList().GetShape();
+								// if (othershape.GetType() == b2Shape.e_polygonShape) {
+									// break;	
+								 // }
+							 // }
 						}
 						 edge = edge.next;
+					}
+					other = this.world.GetBodyList();
+					var minDistance = 1000000;
+					var direction = 1;
+					while (other) {
+						other = other.GetNext();
+						if(other && other.m_userData && other.m_userData.type=="fruit" && once<1){
+							console.debug(other.GetPosition().x - curr_node.GetPosition().x);
+							if(Math.abs(other.GetPosition().x - curr_node.GetPosition().x)<minDistance){
+								minDistance = Math.abs(other.GetPosition().x - curr_node.GetPosition().x);
+								direction=minDistance/(other.GetPosition().x - curr_node.GetPosition().x);
+							}
+							console.debug(direction);
+							console.debug(curr_node);
+							minDistance=Math.min(Math.abs(curr_node.GetPosition().x - other.GetPosition().x),minDistance);
+							once++;
+						}
 					}
 				}
 			}
 		},
-		showDistance: function(distance, height) {
-			$("#distancemeter").html("distance: "+distance+" meters<br />height: "+height+" meters");
+		showDistance: function(distance, height,fruit) {
+			$("#distancemeter").html("distance: "+distance+" meters<br />height: "+height+" meters<br />fruit: "+fruit+" pieces");
+		},
+		destroyOldFruit:function(){
+			var node = this.world.GetBodyList();
+			while (node) {
+				var curr_node = node;
+					node = node.GetNext();
+				if(curr_node.m_userData && curr_node.m_userData.type=="fruit"){
+					var id=curr_node.m_userData.id;
+					this.world.DestroyBody(curr_node);
+					this.forest.germinate(id);
+				}
+			}
 		},
 		generationZero: function() {
 			this.gen_counter = 0;
@@ -155,7 +184,7 @@ var environment=function(seed){
 		materializeGeneration: function() {
 			var c;
 			this.objects = new Array();
-			this.fruit = new Array();
+			if(!this.fruit)this.fruit = new Array();
 			this.fruitCount=0;
 			for(var k = 0; k < this.generationSize; k++) {
 				c=new creature(this.definitions[k],this.world,k);
@@ -192,6 +221,7 @@ var environment=function(seed){
 			scores = new Array();
 			this.definitions = newGeneration;
 			this.gen_counter++;
+			this.destroyOldFruit();
 			this.materializeGeneration();
 			this.deadCars = 0;
 			this.leaderPosition = new Object();
@@ -459,10 +489,10 @@ var environment=function(seed){
 					continue;
 				}
 				var position = this.objects[k].getPosition();
+				var leaderScore = this.objects[k].getScore();
 				if(this.objects[k].checkDeath()) {
 					this.objects[k].kill();
 					this.deadCars++;
-					$("#population").html("cars alive: " + (this.generationSize-this.deadCars));
 					if(this.deadCars >= this.generationSize) {
 						this.newRound();
 					}
@@ -476,7 +506,7 @@ var environment=function(seed){
 					this.leaderPosition.leader = k;
 				}
 			}
-			this.showDistance(Math.round(this.leaderPosition.x*100)/100, Math.round(this.leaderPosition.y*100)/100);
+			this.showDistance(Math.round(this.leaderPosition.x*100)/100, Math.round(this.leaderPosition.y*100)/100,leaderScore);
 		},
 		findLeader: function() {
 			var lead = 0;
@@ -502,7 +532,7 @@ var environment=function(seed){
 			var doAnimation=function(){
 				that.simulationStep();
 				that.drawScreen();
-				that.detectCollisions();
+				that.interactions();
 				requestAnimationFrame(doAnimation);
 			};
 			doAnimation();
